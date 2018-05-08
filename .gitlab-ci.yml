@@ -1,0 +1,30 @@
+image: "index.docker.io/sjoelund/bionic-sphinx:20181011"
+
+stages:
+  - build
+  - deploy
+
+pages:
+  stage: deploy
+  dependencies:
+  - labs
+  script:
+  - test -z "$BUILD_DOC" || pip3 install -r instructions/requirements.txt
+  - test -z "$BUILD_DOC" || instructions/build.sh
+  - mkdir -p "public/$CI_COMMIT_REF_SLUG/"
+  - cp code/testsuite.html "public/$CI_COMMIT_REF_SLUG/"
+  - test -z "$BUILD_DOC" || cp -a instructions/build/html/* "public/$CI_COMMIT_REF_SLUG/"
+  artifacts:
+    paths:
+    - public
+
+labs:
+  stage: build
+  script:
+  - make -C code/scan
+  - make -C code/symtab
+  - make -C code/remaining
+  - (cd code && ../instructions/CI/test.py && junit2html output.xml testsuite.html)
+  artifacts:
+    paths:
+    - code/testsuite.html

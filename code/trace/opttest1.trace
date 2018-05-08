@@ -1,0 +1,274 @@
+An AST will be printed for each block.
+No quads will be generated.
+
+Unoptimized AST for "F"
+Statement list (preceding, last_stmt)
++-NULL
++-Return (value)
+  +-Id (L) [INTEGER]
+
+Optimized AST for "F"
+Statement list (preceding, last_stmt)
++-NULL
++-Return (value)
+  +-Id (L) [INTEGER]
+
+Unoptimized AST for "PROC"
+Statement list (preceding, last_stmt)
++-NULL
++-Assignment (left, right)
+  +-Id (I) [INTEGER]
+  +-Id (L) [INTEGER]
+
+Optimized AST for "PROC"
+Statement list (preceding, last_stmt)
++-NULL
++-Assignment (left, right)
+  +-Id (I) [INTEGER]
+  +-Id (L) [INTEGER]
+
+Unoptimized AST for global level
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-Statement list (preceding, last_stmt)
+| | +-Statement list (preceding, last_stmt)
+| | | +-Statement list (preceding, last_stmt)
+| | | | +-Statement list (preceding, last_stmt)
+| | | | | +-Statement list (preceding, last_stmt)
+| | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | | | +-NULL
+| | | | | | | | | | | +-Assignment (left, right)
+| | | | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | | | |   +-Add (left, right) [INTEGER]
+| | | | | | | | | | |     +-Id (FOO) [INTEGER]
+| | | | | | | | | | |     +-Integer [2]
+| | | | | | | | | | +-Assignment (left, right)
+| | | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | | |   +-Mult (left, right) [INTEGER]
+| | | | | | | | | |     +-Integer [3]
+| | | | | | | | | |     +-Integer [1]
+| | | | | | | | | +-Assignment (left, right)
+| | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | |   +-Unary minus (expr) [INTEGER]
+| | | | | | | | |     +-Mult (left, right) [INTEGER]
+| | | | | | | | |       +-Integer [3]
+| | | | | | | | |       +-Integer [1]
+| | | | | | | | +-Assignment (left, right)
+| | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | |   +-Sub (left, right) [INTEGER]
+| | | | | | | |     +-Id (I) [INTEGER]
+| | | | | | | |     +-Mult (left, right) [INTEGER]
+| | | | | | | |       +-Integer [3]
+| | | | | | | |       +-Integer [1]
+| | | | | | | +-Assignment (left, right)
+| | | | | | |   +-Id (I) [INTEGER]
+| | | | | | |   +-Or (left, right) [INTEGER]
+| | | | | | |     +-Id (I) [INTEGER]
+| | | | | | |     +-Mult (left, right) [INTEGER]
+| | | | | | |       +-Integer [3]
+| | | | | | |       +-Integer [1]
+| | | | | | +-Assignment (left, right)
+| | | | | |   +-Id (I) [INTEGER]
+| | | | | |   +-Add (left, right) [INTEGER]
+| | | | | |     +-Add (left, right) [INTEGER]
+| | | | | |     | +-Id (I) [INTEGER]
+| | | | | |     | +-Integer [1]
+| | | | | |     +-Add (left, right) [INTEGER]
+| | | | | |       +-Id (I) [INTEGER]
+| | | | | |       +-Unary minus (expr) [INTEGER]
+| | | | | |         +-Add (left, right) [INTEGER]
+| | | | | |           +-Integer [63]
+| | | | | |           +-Integer [3]
+| | | | | +-Assignment (left, right)
+| | | | |   +-Id (I) [INTEGER]
+| | | | |   +-Or (left, right) [INTEGER]
+| | | | |     +-Add (left, right) [INTEGER]
+| | | | |     | +-Id (I) [INTEGER]
+| | | | |     | +-Integer [1]
+| | | | |     +-Add (left, right) [INTEGER]
+| | | | |       +-Id (I) [INTEGER]
+| | | | |       +-Unary minus (expr) [INTEGER]
+| | | | |         +-Add (left, right) [INTEGER]
+| | | | |           +-Integer [64]
+| | | | |           +-Integer [3]
+| | | | +-Assignment (left, right)
+| | | |   +-Id (I) [INTEGER]
+| | | |   +-Function call (function, arguments) [INTEGER]
+| | | |     +-Id (F) [INTEGER]
+| | | |     +-Expression list (preceding, last_expr)
+| | | |       +-NULL
+| | | |       +-Mult (left, right) [INTEGER]
+| | | |         +-Integer [3]
+| | | |         +-Integer [1]
+| | | +-Assignment (left, right)
+| | |   +-Id (A) [INTEGER]
+| | |   +-Add (left, right) [INTEGER]
+| | |     +-Id (I) [INTEGER]
+| | |     +-Integer [1]
+| | +-Procedure call (procedure, arguments)
+| |   +-Id (PROC) [VOID]
+| |   +-Expression list (preceding, last_expr)
+| |     +-NULL
+| |     +-Mult (left, right) [INTEGER]
+| |       +-Integer [3]
+| |       +-Integer [1]
+| +-If (condition, then, elsif, else)
+|   +-Less than (left, right) [INTEGER]
+|   | +-Sub (left, right) [INTEGER]
+|   | | +-Integer [2]
+|   | | +-Integer [3]
+|   | +-Integer [4]
+|   +-Statement list (preceding, last_stmt)
+|   | +-NULL
+|   | +-Assignment (left, right)
+|   |   +-Id (I) [INTEGER]
+|   |   +-Add (left, right) [INTEGER]
+|   |     +-Id (A) [INTEGER]
+|   |     +-Integer [5]
+|   +-NULL
+|   +-NULL
++-If (condition, then, elsif, else)
+  +-And (left, right) [INTEGER]
+  | +-Integer [5]
+  | +-Integer [2]
+  +-Statement list (preceding, last_stmt)
+  | +-Statement list (preceding, last_stmt)
+  | | +-NULL
+  | | +-Assignment (left, right)
+  | |   +-Id (P) [REAL]
+  | |   +-Divide (left, right) [REAL]
+  | |     +-Real [15]
+  | |     +-Cast [REAL]
+  | |       +-Integer [2]
+  | +-Assignment (left, right)
+  |   +-Id (Q) [REAL]
+  |   +-Add (left, right) [REAL]
+  |     +-Real [5.6]
+  |     +-Real [1]
+  +-Elsif list (preceding, last_elsif)
+  | +-NULL
+  | +-Elsif (condition, body)
+  |   +-Or (left, right) [INTEGER]
+  |   | +-Integer [3]
+  |   | +-Integer [1]
+  |   +-Statement list (preceding, last_stmt)
+  |     +-NULL
+  |     +-Assignment (left, right)
+  |       +-Id (Q) [REAL]
+  |       +-Add (left, right) [REAL]
+  |         +-Real [6.6]
+  |         +-Real [1]
+  +-NULL
+
+Optimized AST for global level
+Statement list (preceding, last_stmt)
++-Statement list (preceding, last_stmt)
+| +-Statement list (preceding, last_stmt)
+| | +-Statement list (preceding, last_stmt)
+| | | +-Statement list (preceding, last_stmt)
+| | | | +-Statement list (preceding, last_stmt)
+| | | | | +-Statement list (preceding, last_stmt)
+| | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | | +-Statement list (preceding, last_stmt)
+| | | | | | | | | | | +-NULL
+| | | | | | | | | | | +-Assignment (left, right)
+| | | | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | | | |   +-Integer [4]
+| | | | | | | | | | +-Assignment (left, right)
+| | | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | | |   +-Integer [3]
+| | | | | | | | | +-Assignment (left, right)
+| | | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | | |   +-Unary minus (expr) [INTEGER]
+| | | | | | | | |     +-Integer [3]
+| | | | | | | | +-Assignment (left, right)
+| | | | | | | |   +-Id (I) [INTEGER]
+| | | | | | | |   +-Sub (left, right) [INTEGER]
+| | | | | | | |     +-Id (I) [INTEGER]
+| | | | | | | |     +-Integer [3]
+| | | | | | | +-Assignment (left, right)
+| | | | | | |   +-Id (I) [INTEGER]
+| | | | | | |   +-Or (left, right) [INTEGER]
+| | | | | | |     +-Id (I) [INTEGER]
+| | | | | | |     +-Integer [3]
+| | | | | | +-Assignment (left, right)
+| | | | | |   +-Id (I) [INTEGER]
+| | | | | |   +-Add (left, right) [INTEGER]
+| | | | | |     +-Add (left, right) [INTEGER]
+| | | | | |     | +-Id (I) [INTEGER]
+| | | | | |     | +-Integer [1]
+| | | | | |     +-Add (left, right) [INTEGER]
+| | | | | |       +-Id (I) [INTEGER]
+| | | | | |       +-Unary minus (expr) [INTEGER]
+| | | | | |         +-Integer [66]
+| | | | | +-Assignment (left, right)
+| | | | |   +-Id (I) [INTEGER]
+| | | | |   +-Or (left, right) [INTEGER]
+| | | | |     +-Add (left, right) [INTEGER]
+| | | | |     | +-Id (I) [INTEGER]
+| | | | |     | +-Integer [1]
+| | | | |     +-Add (left, right) [INTEGER]
+| | | | |       +-Id (I) [INTEGER]
+| | | | |       +-Unary minus (expr) [INTEGER]
+| | | | |         +-Integer [67]
+| | | | +-Assignment (left, right)
+| | | |   +-Id (I) [INTEGER]
+| | | |   +-Function call (function, arguments) [INTEGER]
+| | | |     +-Id (F) [INTEGER]
+| | | |     +-Expression list (preceding, last_expr)
+| | | |       +-NULL
+| | | |       +-Integer [3]
+| | | +-Assignment (left, right)
+| | |   +-Id (A) [INTEGER]
+| | |   +-Add (left, right) [INTEGER]
+| | |     +-Id (I) [INTEGER]
+| | |     +-Integer [1]
+| | +-Procedure call (procedure, arguments)
+| |   +-Id (PROC) [VOID]
+| |   +-Expression list (preceding, last_expr)
+| |     +-NULL
+| |     +-Integer [3]
+| +-If (condition, then, elsif, else)
+|   +-Less than (left, right) [INTEGER]
+|   | +-Integer [-1]
+|   | +-Integer [4]
+|   +-Statement list (preceding, last_stmt)
+|   | +-NULL
+|   | +-Assignment (left, right)
+|   |   +-Id (I) [INTEGER]
+|   |   +-Add (left, right) [INTEGER]
+|   |     +-Id (A) [INTEGER]
+|   |     +-Integer [5]
+|   +-NULL
+|   +-NULL
++-If (condition, then, elsif, else)
+  +-Integer [1]
+  +-Statement list (preceding, last_stmt)
+  | +-Statement list (preceding, last_stmt)
+  | | +-NULL
+  | | +-Assignment (left, right)
+  | |   +-Id (P) [REAL]
+  | |   +-Divide (left, right) [REAL]
+  | |     +-Real [15]
+  | |     +-Cast [REAL]
+  | |       +-Integer [2]
+  | +-Assignment (left, right)
+  |   +-Id (Q) [REAL]
+  |   +-Real [6.6]
+  +-Elsif list (preceding, last_elsif)
+  | +-NULL
+  | +-Elsif (condition, body)
+  |   +-Integer [1]
+  |   +-Statement list (preceding, last_stmt)
+  |     +-NULL
+  |     +-Assignment (left, right)
+  |       +-Id (Q) [REAL]
+  |       +-Real [7.6]
+  +-NULL

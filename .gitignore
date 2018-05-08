@@ -1,0 +1,15 @@
+d.out
+a.out
+*.o
+public/
+code/output.xml
+code/remaining/compiler
+code/remaining/parser.cc
+code/remaining/parser.hh
+code/remaining/scanner.cc
+code/scan/scanner
+code/scan/scanner.cc
+code/symtab/scanner.cc
+code/symtab/symtab
+code/testsuite.html
+code/tmp
