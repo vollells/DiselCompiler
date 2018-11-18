@@ -186,7 +186,7 @@ public:
      can be used to speed up certain types of lookups.
      It is possible to complete the lab without using it, though.
      */
-    sym_index back_link;
+    hash_index back_link;
 
     /*! The lexical level states how deeply nested the object is in the program.
      * For example, an object on the first level is global.
