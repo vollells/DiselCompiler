@@ -11,9 +11,9 @@ pages:
   script:
   - test -z "$BUILD_DOC" || pip3 install -r instructions/requirements.txt
   - test -z "$BUILD_DOC" || instructions/build.sh
-  - mkdir -p "public/$CI_COMMIT_REF_SLUG/"
-  - cp code/testsuite.html "public/$CI_COMMIT_REF_SLUG/"
-  - test -z "$BUILD_DOC" || cp -a instructions/build/html/* "public/$CI_COMMIT_REF_SLUG/"
+  - mkdir -p "public/"
+  - cp code/testsuite.html "public/"
+  - test -z "$BUILD_DOC" || cp -a instructions/build/html/* "public/"
   artifacts:
     paths:
     - public
