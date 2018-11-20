@@ -123,7 +123,9 @@ cpp_flags="-traditional-cpp -C -P"
 # so we use a small trick here instead to count the lines to know how long
 # is it so we can strip it out from the final output.
 # Not pretty, but it works...
-cpp_ignore=$(echo "" | cpp $cpp_flags | wc -l)
+# Note: On OSX the number of whitespace is different depending on if the
+# input is empty or not, so we look for the first line containing the program
+cpp_ignore=$(echo "DIESELPROGRAM" | cpp $cpp_flags | grep -n DIESELPROGRAM | cut -d: -f1)
 
 if [ -n "$gdb_debug" ]; then
     tmpfile=$(mktemp /tmp/diesel-preprocessed-XXXXXXXXXX.d)
