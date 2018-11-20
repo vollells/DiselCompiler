@@ -1,5 +1,5 @@
 CC	=	g++
-CFLAGS	=	-std=c++11 -ggdb3 -Wall -Woverloaded-virtual -pedantic
+CFLAGS	=	-std=c++11 -ggdb3 -Wall -Woverloaded-virtual -pedantic -pie
 #CC	=	CC
 #CFLAGS	=	-g +p +w
 GCFLAGS =	-std=c++11 -g -Wall -Wno-unused-function -Wno-unused-variable
