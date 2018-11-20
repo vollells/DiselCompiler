@@ -280,10 +280,6 @@ the declared function name. Example:
          end
       end;
 
-.. raw:: latex
-
-   \image{diesel_1_return.png}{Return.}{fig:return}
-
 In an ordinary procedure you can have return-statements without a
 following expression. Such return-statements act as alternative return
 points in the procedure. Example:
