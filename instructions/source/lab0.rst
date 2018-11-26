@@ -11,15 +11,15 @@ theory knowledge of regular expressions and formal languages. The lab is
 intended to make you practice using the basic concepts used in
 descriptions of formal languages.
 
-#. Given the alphabet :math:`A = \{ 1, 2, 3 \}` and the strings ``x = 2``,
-   ``y = 13``, ``z = 323``:
+#. Given the alphabet :math:`A = \{ 1, 2, 3 \}` and the strings x=\ ``2``,
+   y=\ ``13``, z=\ ``323``:
 
-   #. What are the strings ``xz``, ``zyx``, ``z2``, ``x7``; and what are
+   #. What are the strings xz, zyx, z\ :sup:`2`, z\ :sup:`7`; and what are
       their lengths?
 
-   #. What are :math:`A1`, :math:`A2`, :math:`A0`?
+   #. What are A\ :sup:`1`, A\ :sup:`2`, A\ :sup:`0`?
 
-   #. Describe :math:`A*` and :math:`A+`.
+   #. Describe A\ :sup:`*` and A\ :sup:`+`.
 
 #. Given:
 
@@ -103,15 +103,19 @@ descriptions of formal languages.
    #.
      .. code-block :: bnf
 
-       <S> ::= <A> <A> <A> ::= 1 <A> 0 | 10
+       <S> ::= <A> <A>
+       <A> ::= 1 <A> 0 | 10
 
    #.
       .. code-block :: bnf
 
-        <S> ::= 1 <S> 0 | <B> <B> ::= 0 <B> 1 | ε
+        <S> ::= 1 <S> 0 | <B>
+        <B> ::= 0 <B> 1 | ε
 
    #.
       .. code-block :: bnf
 
-        <S> ::= 1 <A> | <B> 0 <A> ::= 1 <A> | <C> <B> ::= <B> 0 | <C>
+        <S> ::= 1 <A> | <B> 0
+        <A> ::= 1 <A> | <C>
+        <B> ::= <B> 0 | <C>
         <C> ::= 1 <C> 0 | ε
