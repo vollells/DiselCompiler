@@ -4,6 +4,7 @@ Scanned T_INTNUM '5' (2, 4) <yylval.ival = 5>
 Scanned T_REALNUM '7.8e4' (2, 6) <yylval.rval = 78000>
 Scanned T_REALNUM '4E10' (2, 12) <yylval.rval = 4e+10>
 Scanned T_REALNUM '.1e-4' (2, 17) <yylval.rval = 1e-05>
+Scanned T_REALNUM '1.e+3' (2, 23) <yylval.rval = 1000>
 Scanned T_ADD '+' (4, 0)
 Scanned T_SUB '-' (4, 2)
 Scanned T_MUL '*' (4, 4)
@@ -36,17 +37,25 @@ Scanned T_SEMICOLON ';' (5, 20)
 Scanned T_STRINGCONST ''string'' (9, 0) <yylval.str = STRING>
 Scanned T_STRINGCONST ''panic: can''t happen'' (10, 0) <yylval.str = PANIC: CAN'T HAPPEN>
 Scanned T_STRINGCONST '''''' (11, 0) <yylval.str = '>
-Scanned T_INTNUM '9' (13, 0) <yylval.ival = 9>
-Scanned T_IDENT 'b' (13, 1) <yylval.pool_p = B>
-Scanned T_DOT '.' (14, 0)
-Scanned T_IDENT 'e3' (14, 1) <yylval.pool_p = E3>
-Error: line 15: Illegal character
-Error: line 17: Newline in string
-Scanned T_IDENT 'newline' (17, 2) <yylval.pool_p = NEWLINE>
-Scanned T_IDENT 'in' (17, 10) <yylval.pool_p = IN>
-Scanned T_IDENT 'it' (17, 13) <yylval.pool_p = IT>
-Error: line 18: Newline in string
-Scanned T_IDENT 'foo' (19, 0) <yylval.pool_p = FOO>
+Scanned T_INTNUM '12345678910' (13, 0) <yylval.ival = 12345678910>
+Error: line 15: Integer out of range
+Scanned T_INTNUM '36893488147419103231' (15, 0) <yylval.ival = 9223372036854775807>
+Scanned T_INTNUM '9' (17, 0) <yylval.ival = 9>
+Scanned T_IDENT 'b' (17, 1) <yylval.pool_p = B>
+Scanned T_DOT '.' (18, 0)
+Scanned T_IDENT 'e3' (18, 1) <yylval.pool_p = E3>
 Error: line 19: Illegal character
-Scanned T_IDENT 'fie' (19, 3) <yylval.pool_p = FIE>
+Error: line 21: Newline in string
+Scanned T_IDENT 'newline' (21, 2) <yylval.pool_p = NEWLINE>
+Scanned T_IDENT 'in' (21, 10) <yylval.pool_p = IN>
+Scanned T_IDENT 'it' (21, 13) <yylval.pool_p = IT>
+Error: line 22: Newline in string
+Scanned T_IDENT 'foo' (23, 0) <yylval.pool_p = FOO>
+Error: line 23: Illegal character
+Scanned T_IDENT 'fie' (23, 3) <yylval.pool_p = FIE>
+Scanned T_IDENT '_id' (24, 0) <yylval.pool_p = _ID>
+Scanned T_IDENT 'id_1' (25, 0) <yylval.pool_p = ID_1>
+Scanned T_INTNUM '1' (26, 0) <yylval.ival = 1>
+Scanned T_IDENT 'e' (26, 1) <yylval.pool_p = E>
+Scanned T_IDENT 'integer' (27, 0) <yylval.pool_p = INTEGER>
 End of file

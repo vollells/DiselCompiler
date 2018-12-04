@@ -9,13 +9,9 @@ ident // nothing
 a /*
 comment/* nested comment */
 */
-{pascal like 
+{pascal like
 comment  {oops, nested } }
 integers
-_id
-id_1
-1e
-integer
 'multiline
 string' and nothing else
 
