@@ -560,7 +560,7 @@ sample output. You should test your code on more examples than this.
 
 .. code-block:: bash
 
-  ./diesel -b -p -y ../testpgm/quadtest1.d
+  ./diesel -b -q -y ../testpgm/quadtest1.d
 
 .. literalinclude:: ../../code/trace/quadtest1.trace
   :language: none
