@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 # The ubuntu:bionic image ignores documentation, so extract the documentation manually
 RUN apt-get update -q && apt-get upgrade -qy && apt-get install -qy \
-    texlive-base texlive-latex-extra \
+    texlive-base texlive-latex-extra latexmk \
     python3 python3-pip gnuplot doxygen \
     flex bison graphviz \
     make git \
