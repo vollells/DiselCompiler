@@ -1,5 +1,5 @@
-# FROM ubuntu:bionic
-FROM sjoelund/bionic-sphinx:latest
+FROM ubuntu:bionic
+# FROM sjoelund/bionic-sphinx:latest
 MAINTAINER Martin Sjölund <martin.sjolund@liu.se>
 ENV DEBIAN_FRONTEND noninteractive
 
