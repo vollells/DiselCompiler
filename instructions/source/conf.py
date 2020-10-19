@@ -20,11 +20,11 @@ sys.path.insert(0, os.path.abspath('.'))
 # -- Project information -----------------------------------------------------
 
 project = 'TDDB44 Compiler Construction'
-copyright = u'2018-2019, Martin Sjölund et al.'
+copyright = u'2018-2020, Martin Sjölund et al.'
 author = u'Martin Sjölund et al.'
 
 # The short X.Y version
-version = 'HT2019'
+version = 'HT2020'
 # The full version, including alpha/beta/rc tags
 release = ''
 
