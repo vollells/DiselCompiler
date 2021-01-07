@@ -972,4 +972,4 @@ sample output. You should test your code on more examples than this.
 .. [1]
    Furthermore, the program cannot call itself recursively.
 
-.. bibliography :: refs.bib
+.. bibliography ::

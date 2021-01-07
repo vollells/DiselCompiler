@@ -190,3 +190,5 @@ numfig_secnum_depth = 1
 # -- Extension configuration -------------------------------------------------
 
 html_show_sourcelink = False
+
+bibtex_bibfiles = ['refs.bib']
