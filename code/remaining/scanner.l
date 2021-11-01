@@ -55,7 +55,12 @@ DIGIT [0-9]
    identifiers, integers, reals, and whitespace. */
 %%
 
-\n                   column = 0;
+// TODO
+//  - seperators
+//  - strings
+//  - parse reals and ints to actual numbers 
+
+\n       { column = 0; }
 
 {DIGIT}+ {
     SPAN();
@@ -73,7 +78,6 @@ DIGIT [0-9]
     yylval.pool_p = sym_tab->pool_install(captialized);
     return T_IDENT;
 }
-
 
 \.    { SPAN(); return T_DOT; }
 ;     { SPAN(); return T_SEMICOLON; }
