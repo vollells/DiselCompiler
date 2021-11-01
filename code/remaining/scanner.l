@@ -61,6 +61,16 @@ DIGIT [0-9]
     return T_REALNUM;
 }
 
+[A-z_]+ {
+    yylloc.first_line = yylineno;
+    yylloc.first_column = column;
+    column += yyleng;
+    auto captialized = sym_tab->capitalize(yytext);
+    yylval.pool_p = sym_tab->pool_install(captialized);
+    return T_IDENT;
+}
+
+
 \.                       {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
