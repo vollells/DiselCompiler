@@ -404,7 +404,7 @@ information given above and below. You will have to use the regular
 expressions you defined earlier. You must add token-specific information
 into the :var:`yylval` union where appropriate (integers, reals, string
 constants and identifiers), and position information in the :var:`yylloc`
-struct for all tokens.
+struct for all tokens. The matched lex-string is stored in :var:`yytext`.
 
 More specifically, your scanner should do the following:
 
