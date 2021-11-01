@@ -45,13 +45,13 @@ DIGIT [0-9]
    identifiers, integers, reals, and whitespace. */
 %%
 
-{DIGIT}+                 {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_INTNUM;
-                         }
-                                    
+{DIGIT}+ {
+    yylloc.first_line = yylineno;
+    yylloc.first_column = column;
+    column += yyleng;
+    return T_INTNUM;
+}
+
 \.                       {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
