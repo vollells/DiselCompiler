@@ -45,6 +45,8 @@ DIGIT [0-9]
    identifiers, integers, reals, and whitespace. */
 %%
 
+\n                   column = 0;
+
 {DIGIT}+ {
     yylloc.first_line = yylineno;
     yylloc.first_column = column;
