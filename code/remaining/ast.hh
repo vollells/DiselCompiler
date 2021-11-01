@@ -84,7 +84,6 @@ AST_NODE
      +- AST_PARAMETER
 */
 
-
 /* The various types of AST node tags that can appear. If C++ had had an
    instanceof operator like Java, we wouldn't need this... These tags are
    set in the node constructor and should never be changed afterwards. */
@@ -130,10 +129,8 @@ enum ast_node_types {
 };
 typedef enum ast_node_types ast_node_type;
 
-
 /* Needed so we can refer to quad_list& as arguments. See below. */
 class quad_list;
-
 
 /* Class stubs to allow referencing the classes below before they're declared.
    See below. */
@@ -146,8 +143,6 @@ class ast_cast;
 
 class quad_list;
 
-
-
 /*** Abstract classes ***/
 
 /*! The superclass of all other AST nodes. It is essentially an empty
@@ -155,8 +150,7 @@ class quad_list;
  * node type when downcasting is needed), and methods for printing AST nodes;
  * all of which are things common to all nodes.
  */
-class ast_node
-{
+class ast_node {
 protected:
     // Used for AST printing.
     static int indent_level;
@@ -213,13 +207,11 @@ public:
     friend ostream &operator<<(ostream &, ast_node *);
 };
 
-
-
 /*! The superclass for all DIESEL constructs that do not return a value. */
-class ast_statement : public ast_node
-{
+class ast_statement : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_statement(position_information *);
@@ -232,16 +224,14 @@ public:
     virtual sym_index generate_quads(quad_list &) = 0;
 };
 
-
-
 /*! The superclass for all DIESEL constructs that do return a value.
  * It has a #type attribute, which denotes the type of its value
  * (#real_type, #integer_type, or #void_type).
  */
-class ast_expression : public ast_node
-{
+class ast_expression : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The return type of this expression.
     sym_index type;
@@ -289,8 +279,6 @@ public:
     }
 };
 
-
-
 /*! Base class for all binary relation nodes. ``a < b``, etc.
 
    Always returns a integer value, where 0 (zero) means *false* and
@@ -298,12 +286,12 @@ public:
 
    Note: the left and right operands are defined here instead of in the
    individual subclasses, making those rather trivial. */
-class ast_binaryrelation : public ast_expression
-{
+class ast_binaryrelation : public ast_expression {
 protected:
     virtual void print(ostream &);
 
     virtual void xprint(ostream &, string);
+
 public:
     //! Left child of the operation.
     ast_expression *left;
@@ -323,17 +311,15 @@ public:
     virtual sym_index generate_quads(quad_list &) = 0;
 };
 
-
-
 /*! Base class for all binary operation nodes. ``a + b``, etc.
    Note: the left and right operands are defined here instead of in the
    individual subclasses, making those rather trivial. */
-class ast_binaryoperation : public ast_expression
-{
+class ast_binaryoperation : public ast_expression {
 protected:
     virtual void print(ostream &);
 
     virtual void xprint(ostream &, string);
+
 public:
     //! Left child of the operation.
     ast_expression *left;
@@ -359,17 +345,15 @@ public:
     }
 };
 
-
-
 /*! The superclass for all DIESEL constructs that can be assigned a value
  * (i.e., which evaluate to a reference to a storage location).
  * The name lvalue comes from the fact that it represents expressions
  * that can appear on the left-hand side of an assignment (e.g., ``x := 2;``).
  */
-class ast_lvalue : public ast_expression
-{
+class ast_lvalue : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructors.
     ast_lvalue(position_information *);
@@ -386,21 +370,17 @@ public:
     virtual void generate_assignment(quad_list &, sym_index) = 0;
 };
 
-
-
-
 /*** Concrete classes - these nodes actually appear in the AST. ***/
-
 
 /*** Classes derived from ast_node ***/
 
 /*! represents an ``elsif`` clause inside an ``if``-statement.
  * The class is a bit special, so it inherits directly from ast_node.
  */
-class ast_elsif : public ast_node
-{
+class ast_elsif : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The test condition; decides if we should execute the body.
     ast_expression *condition;
@@ -423,16 +403,14 @@ public:
     virtual void generate_quads_and_jump(quad_list &, int);
 };
 
-
-
 /*! Contains a list of expressions. Currently only used for parameter lists.
 
    Note: The parameters will be stored in reverse order! This is due to how the
          grammar is written, it's easiest this way. */
-class ast_expr_list : public ast_node
-{
+class ast_expr_list : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! Points to the last (last added) expression in the list.
     ast_expression *last_expr;
@@ -456,11 +434,9 @@ public:
     virtual sym_index generate_quads(quad_list &);
 
     virtual void generate_parameter_list(quad_list &,
-            parameter_symbol *,
-            int *);
+                                         parameter_symbol *,
+                                         int *);
 };
-
-
 
 /*! Contains a list of statements.
   The body of a program, for example, is represented by this class:
@@ -527,10 +503,10 @@ Example:
   id11 [label="f"];
 \endverbatim
   */
-class ast_stmt_list : public ast_node
-{
+class ast_stmt_list : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! Points to the last (last added) statement in the list.
     ast_statement *last_stmt;
@@ -554,13 +530,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*! Contains a list of elsif clauses. */
-class ast_elsif_list : public ast_node
-{
+class ast_elsif_list : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! Points to the last (last added) elsif clause in the list.
     ast_elsif *last_elsif;
@@ -586,14 +560,13 @@ public:
     virtual void generate_quads_and_jump(quad_list &, int);
 };
 
-
 /*! A node used to transfer information about an environment. Used in parser.y
    for setting the proper return type of a function, and type checking.
    It is never part of a function body. */
-class ast_functionhead : public ast_node
-{
+class ast_functionhead : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! Pointer to the function in the symbol table.
     sym_index sym_p;
@@ -615,14 +588,13 @@ public:
     quad_list *do_quads(ast_stmt_list *s);
 };
 
-
 /*! A node used to transfer information about an environment. Used in parser.y
    for setting the proper return type of a procedure. It is never part of a
    procedure body. */
-class ast_procedurehead : public ast_node
-{
+class ast_procedurehead : public ast_node {
 protected:
     virtual void print(ostream &);
+
 public:
     //! Pointer to the procedure in the symbol table.
     sym_index sym_p;
@@ -643,8 +615,6 @@ public:
     */
     quad_list *do_quads(ast_stmt_list *s);
 };
-
-
 
 /*** Classes derived from ast_statement ***/
 
@@ -708,10 +678,10 @@ Example:
 \endverbatim
 
 */
-class ast_procedurecall : public ast_statement
-{
+class ast_procedurecall : public ast_statement {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The procedure's id node, contains a link to the symbol table.
     ast_id *id;
@@ -732,18 +702,16 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*! Assignment node. ``a := b`` or ``a[i] = b``.
 
   Note that this class inherits ast_statement, and therefore does
   not return a value. Constructs of the type ``a := (b := 2);`` are not
   allowed in DIESEL.
  */
-class ast_assign : public ast_statement
-{
+class ast_assign : public ast_statement {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The left hand side (lhs), ie, the variable being assigned to.
     ast_lvalue *lhs;
@@ -764,16 +732,14 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*! A while loop. Contains a test condition and a loop body.
 
  Compare this to other conditional nodes (e.g. ``ast_elsif``, ``ast_if``).
  */
-class ast_while : public ast_statement
-{
+class ast_while : public ast_statement {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The test condition.
     ast_expression *condition;
@@ -793,8 +759,6 @@ public:
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 };
-
-
 
 /*! An if clause. Has lots of children. if - then - elsif - else.
 
@@ -903,10 +867,10 @@ Example:
   ast_uminus -> "ast_integer\n1";
 \endverbatim
  */
-class ast_if : public ast_statement
-{
+class ast_if : public ast_statement {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The primary if-condition.
     ast_expression *condition;
@@ -937,8 +901,6 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*! A return statement, used both for procedures and functions.
    If no value is returned (i.e. in a procedure), 'value' should be set
    to NULL.
@@ -947,10 +909,10 @@ public:
   stand on the right-hand side of an assignment since it inherits
   ``ast_statement``.
   */
-class ast_return : public ast_statement
-{
+class ast_return : public ast_statement {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The return value.
     ast_expression *value;
@@ -971,8 +933,6 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*** Classes derived from ast_expression ***/
 
 /*! Represents a function call. ``a = calc(foo);``
@@ -985,10 +945,10 @@ public:
  than the execution of the function body, except in certain cases
  involving recursive function calls.
  */
-class ast_functioncall : public ast_expression
-{
+class ast_functioncall : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The function's id node, contains a link to the symbol table.
     ast_id *id;
@@ -1009,16 +969,14 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
-
 /*! A unary minus node.
 
  Note that there is no unary plus.
  */
-class ast_uminus : public ast_expression
-{
+class ast_uminus : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The expression to negate.
     ast_expression *expr;
@@ -1036,12 +994,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
 /*! A logical negation node. */
-class ast_not : public ast_expression
-{
+class ast_not : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The expression being negated.
     ast_expression *expr;
@@ -1059,12 +1016,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
 /*! An integer node. Represents an integer number, like ``5``. */
-class ast_integer : public ast_expression
-{
+class ast_integer : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The integer value of the node.
     long value;
@@ -1087,12 +1043,11 @@ public:
     }
 };
 
-
 /*! A real node. Represents a real number, like ``2.5``. */
-class ast_real : public ast_expression
-{
+class ast_real : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The floating point value of the node.
     double value;
@@ -1115,17 +1070,15 @@ public:
     }
 };
 
-
-
 /*! A cast node.
 
  This class represents type transformation, casting an integer to a real.
  It is inserted into the AST at appropriate places during type checking.
  See semantic.cc. */
-class ast_cast : public ast_expression
-{
+class ast_cast : public ast_expression {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The expression to cast to real.
     ast_expression *expr;
@@ -1145,15 +1098,13 @@ public:
     }
 };
 
-
-
 /*** Classes derived from ast_binaryrelation ***/
 
 /*! Equality operator. ``a = b``. */
-class ast_equal : public ast_binaryrelation
-{
+class ast_equal : public ast_binaryrelation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_equal(position_information *, ast_expression *, ast_expression *);
@@ -1168,12 +1119,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
 /*! Not-equal operator. ``a <> b``. */
-class ast_notequal : public ast_binaryrelation
-{
+class ast_notequal : public ast_binaryrelation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_notequal(position_information *, ast_expression *, ast_expression *);
@@ -1188,12 +1138,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
 /*! Less than operator. ``a < b``. */
-class ast_lessthan : public ast_binaryrelation
-{
+class ast_lessthan : public ast_binaryrelation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_lessthan(position_information *, ast_expression *, ast_expression *);
@@ -1208,12 +1157,11 @@ public:
     virtual sym_index generate_quads(quad_list &);
 };
 
-
 /*! Greater than operator. ``a > b``. */
-class ast_greaterthan : public ast_binaryrelation
-{
+class ast_greaterthan : public ast_binaryrelation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_greaterthan(position_information *, ast_expression *, ast_expression *);
@@ -1227,9 +1175,6 @@ public:
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 };
-
-
-
 
 /*** Classes derived from ast_binaryoperation ***/
 
@@ -1257,10 +1202,10 @@ public:
    }
 \endverbatim
  */
-class ast_add : public ast_binaryoperation
-{
+class ast_add : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_add(position_information *, ast_expression *, ast_expression *);
@@ -1280,12 +1225,11 @@ public:
     }
 };
 
-
 /*! Minus node. ``a - b``. */
-class ast_sub : public ast_binaryoperation
-{
+class ast_sub : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_sub(position_information *, ast_expression *, ast_expression *);
@@ -1305,12 +1249,11 @@ public:
     }
 };
 
-
 /*! Logical OR node. ``a OR b``. */
-class ast_or : public ast_binaryoperation
-{
+class ast_or : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_or(position_information *, ast_expression *, ast_expression *);
@@ -1330,12 +1273,11 @@ public:
     }
 };
 
-
 /*! Logical AND node. ``a AND b``. */
-class ast_and : public ast_binaryoperation
-{
+class ast_and : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_and(position_information *, ast_expression *, ast_expression *);
@@ -1355,12 +1297,11 @@ public:
     }
 };
 
-
 /*! Multiplication node. ``a * b``. */
-class ast_mult : public ast_binaryoperation
-{
+class ast_mult : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_mult(position_information *, ast_expression *, ast_expression *);
@@ -1380,12 +1321,11 @@ public:
     }
 };
 
-
 /*! Real division node. ``a / b``, where at least one of a and b have real type. */
-class ast_divide : public ast_binaryoperation
-{
+class ast_divide : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_divide(position_information *, ast_expression *, ast_expression *);
@@ -1405,12 +1345,11 @@ public:
     }
 };
 
-
 /*! Integer division node. ``a div b``, where both operands have integer type. */
-class ast_idiv : public ast_binaryoperation
-{
+class ast_idiv : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_idiv(position_information *, ast_expression *, ast_expression *);
@@ -1430,12 +1369,11 @@ public:
     }
 };
 
-
 /*! Integer mod node. ``a mod b``, where both operands have integer type. */
-class ast_mod : public ast_binaryoperation
-{
+class ast_mod : public ast_binaryoperation {
 protected:
     virtual void print(ostream &);
+
 public:
     // Constructor.
     ast_mod(position_information *, ast_expression *, ast_expression *);
@@ -1455,14 +1393,12 @@ public:
     }
 };
 
-
-
 /*! An identifier node. Can be the name of a variable, function, constant,
    etc... */
-class ast_id : public ast_lvalue
-{
+class ast_id : public ast_lvalue {
 protected:
     virtual void print(ostream &);
+
 public:
     //! A symbol table index for this symbol.
     sym_index sym_p;
@@ -1488,8 +1424,6 @@ public:
         return this;
     }
 };
-
-
 
 /*! An array identifier node. Index must be of integer type.
 
@@ -1526,10 +1460,10 @@ Example:
   add -> i3;
 \endverbatim
  */
-class ast_indexed : public ast_lvalue
-{
+class ast_indexed : public ast_lvalue {
 protected:
     virtual void print(ostream &);
+
 public:
     //! The array's id node, which contains a link into the symbol table.
     ast_id *id;
@@ -1552,10 +1486,7 @@ public:
     virtual void generate_assignment(quad_list &, sym_index);
 };
 
-
-
 /* Allow a node to be sent to an outstream for printing. */
 ostream &operator<<(ostream &, ast_node *);
-
 
 #endif

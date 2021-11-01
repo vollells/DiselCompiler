@@ -19,8 +19,7 @@ bool optimize = true;
 bool quads = true;
 bool assembler = true;
 
-void usage(char *program_name)
-{
+void usage(char *program_name) {
     cerr << "Usage:\n"
          << program_name << " [-acdfpqsty] inputfile\n"
          << program_name << " [-h?]\n"
@@ -38,14 +37,12 @@ void usage(char *program_name)
     exit(1);
 }
 
-
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     char options[] = "acdfpqstyh?";
     int option;
     bool print_symtab = false;
 
-    extern  FILE *yyin;
+    extern FILE *yyin;
 
     opterr = 0;
     optopt = '?';
@@ -54,23 +51,28 @@ int main(int argc, char **argv)
     while ((option = getopt(argc, argv, options)) != EOF) {
         switch (option) {
         case 'a':
-            cout << "An AST will be printed for each block.\n" << flush;
+            cout << "An AST will be printed for each block.\n"
+                 << flush;
             print_ast = true;
             break;
         case 'c':
-            cout << "No type checking will be performed.\n" << flush;
+            cout << "No type checking will be performed.\n"
+                 << flush;
             typecheck = false;
             break;
         case 'd':
-            cout << "Bison debugging turned on.\n" << flush;
+            cout << "Bison debugging turned on.\n"
+                 << flush;
             yydebug = true;
             break;
         case 'f':
-            cout << "No optimization will be done.\n" << flush;
+            cout << "No optimization will be done.\n"
+                 << flush;
             optimize = false;
             break;
         case 'p':
-            cout << "No quads will be generated.\n" << flush;
+            cout << "No quads will be generated.\n"
+                 << flush;
             quads = false;
             break;
         case 'q':
@@ -79,11 +81,13 @@ int main(int argc, char **argv)
             print_quads = true;
             break;
         case 's':
-            cout << "No assembler code will be generated.\n" << flush;
+            cout << "No assembler code will be generated.\n"
+                 << flush;
             assembler = false;
             break;
         case 't':
-            cout << "Assembler code will contain quad labels.\n" << flush;
+            cout << "Assembler code will contain quad labels.\n"
+                 << flush;
             assembler_trace = true;
             break;
         case 'y':
@@ -125,6 +129,3 @@ int main(int argc, char **argv)
 
     exit(error_count);
 }
-
-
-

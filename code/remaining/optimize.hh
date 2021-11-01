@@ -3,7 +3,6 @@
 
 #include "ast.hh"
 
-
 /*** This class performs AST optimisation. Currently it only implements a
      very simple optimisation known as constant folding, which means that it
      tries to evaluate a binary operation node such as 2 + 5 during compiling,
@@ -11,20 +10,16 @@
      only involving constants, such as (assuming FOO = 2) 4 + FOO, replacing
      the + node with an integer node with the value 6. ***/
 
-
 class ast_optimizer;
 
 // Defined in optimize.cc.
 extern ast_optimizer *optimizer;
 
-
-class ast_optimizer
-{
-/* You might want to add your own methods to this header file when
+class ast_optimizer {
+    /* You might want to add your own methods to this header file when
    solving the optimization lab. */
-    
-public:
 
+public:
     /*! \brief Starts recursive (destructive) optimization of a block.
 
     \param body a list of statements representing the block body to be optimized.
@@ -46,6 +41,5 @@ public:
      */
     ast_expression *fold_constants(ast_expression *);
 };
-
 
 #endif

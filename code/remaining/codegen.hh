@@ -8,10 +8,10 @@
 
 using namespace std;
 
-
 /* These are the registers we will be using. */
-enum register_type { RAX, RCX, RDX };
-
+enum register_type { RAX,
+                     RCX,
+                     RDX };
 
 // Maximum number of formal parameters allowed.
 const int MAX_PARAMETERS = 127;
@@ -20,8 +20,7 @@ const int MAX_PARAMETERS = 127;
 const int STACK_WIDTH = 8;
 
 /* This class generates assembler code for the Intel architecture. */
-class code_generator
-{
+class code_generator {
 private:
     // Register array.
     string reg[3];
@@ -30,7 +29,7 @@ private:
     ofstream out;
 
     //! Aligns a stack frame on an 8-byte boundary.
-    int  align(int);
+    int align(int);
 
     /*! \brief Generates code to create the activation record
 
@@ -88,6 +87,7 @@ private:
         of the corresponding frame from the display area.
      */
     void frame_address(int level, const register_type);
+
 public:
     // Constructor. Arg = filename of assembler outfile.
     code_generator(const string);

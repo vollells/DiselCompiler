@@ -18,8 +18,7 @@ extern bool assembler_trace;
 code_generator *code_gen = new code_generator("d.out");
 
 // Constructor.
-code_generator::code_generator(const string object_file_name)
-{
+code_generator::code_generator(const string object_file_name) {
     out.open(object_file_name);
 
     reg[RAX] = "rax";
@@ -27,42 +26,31 @@ code_generator::code_generator(const string object_file_name)
     reg[RDX] = "rdx";
 }
 
-
 /* Destructor. */
-code_generator::~code_generator()
-{
+code_generator::~code_generator() {
     // Make sure we close the outfile before exiting the compiler.
     out << flush;
     out.close();
 }
 
-
-
 /* This method is called from parser.y when code generation is to start.
    The argument is a quad_list representing the body of the procedure, and
    the symbol for the environment for which code is being generated. */
-void code_generator::generate_assembler(quad_list *q, symbol *env)
-{
+void code_generator::generate_assembler(quad_list *q, symbol *env) {
     prologue(env);
     expand(q);
     epilogue(env);
 }
 
-
-
 /* This method aligns a frame size on an 8-byte boundary. Used by prologue().
  */
-int code_generator::align(int frame_size)
-{
+int code_generator::align(int frame_size) {
     return ((frame_size + 7) / 8) * 8;
 }
 
-
-
 /* This method generates assembler code for initialisating a procedure or
    function. */
-void code_generator::prologue(symbol *new_env)
-{
+void code_generator::prologue(symbol *new_env) {
     int ar_size;
     int label_nr;
     // Used to count parameters.
@@ -89,12 +77,15 @@ void code_generator::prologue(symbol *new_env)
     }
 
     /* Print out the label number (a SYM_PROC/ SYM_FUNC attribute) */
-    out << "L" << label_nr << ":" << "\t\t\t" << "# " <<
+    out << "L" << label_nr << ":"
+        << "\t\t\t"
+        << "# " <<
         /* Print out the function/procedure name */
         sym_tab->pool_lookup(new_env->id) << endl;
 
     if (assembler_trace) {
-        out << "\t" << "# PROLOGUE (" << short_symbols << new_env
+        out << "\t"
+            << "# PROLOGUE (" << short_symbols << new_env
             << long_symbols << ")" << endl;
     }
 
@@ -102,14 +93,12 @@ void code_generator::prologue(symbol *new_env)
 
     out << flush;
 }
-
-
 
 /* This method generates assembler code for leaving a procedure or function. */
-void code_generator::epilogue(symbol *old_env)
-{
+void code_generator::epilogue(symbol *old_env) {
     if (assembler_trace) {
-        out << "\t" << "# EPILOGUE (" << short_symbols << old_env
+        out << "\t"
+            << "# EPILOGUE (" << short_symbols << old_env
             << long_symbols << ")" << endl;
     }
 
@@ -117,61 +106,47 @@ void code_generator::epilogue(symbol *old_env)
 
     out << flush;
 }
-
-
 
 /* This function finds the display register level and offset for a variable,
    array or a parameter. Note the pass-by-pointer arguments. */
-void code_generator::find(sym_index sym_p, int *level, int *offset)
-{
+void code_generator::find(sym_index sym_p, int *level, int *offset) {
     /* Your code here */
 }
 
 /*
  * Generates code for getting the address of a frame for the specified scope level.
  */
-void code_generator::frame_address(int level, const register_type dest)
-{
+void code_generator::frame_address(int level, const register_type dest) {
     /* Your code here */
 }
 
 /* This function fetches the value of a variable or a constant into a
    register. */
-void code_generator::fetch(sym_index sym_p, register_type dest)
-{
+void code_generator::fetch(sym_index sym_p, register_type dest) {
     /* Your code here */
 }
 
-void code_generator::fetch_float(sym_index sym_p)
-{
+void code_generator::fetch_float(sym_index sym_p) {
     /* Your code here */
 }
-
-
 
 /* This function stores the value of a register into a variable. */
-void code_generator::store(register_type src, sym_index sym_p)
-{
+void code_generator::store(register_type src, sym_index sym_p) {
     /* Your code here */
 }
 
-void code_generator::store_float(sym_index sym_p)
-{
+void code_generator::store_float(sym_index sym_p) {
     /* Your code here */
 }
-
 
 /* This function fetches the base address of an array. */
-void code_generator::array_address(sym_index sym_p, register_type dest)
-{
+void code_generator::array_address(sym_index sym_p, register_type dest) {
     /* Your code here */
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
-void code_generator::expand(quad_list *q_list)
-{
-    long quad_nr = 0;       // Just to make debug output easier to read.
-    
+void code_generator::expand(quad_list *q_list) {
+    long quad_nr = 0; // Just to make debug output easier to read.
 
     // We use this iterator to loop through the quad list.
     quad_list_iterator *ql_iterator = new quad_list_iterator(q_list);
@@ -189,7 +164,8 @@ void code_generator::expand(quad_list *q_list)
 
         // Debug output.
         if (assembler_trace) {
-            out << "\t" << "# QUAD " << quad_nr << ": "
+            out << "\t"
+                << "# QUAD " << quad_nr << ": "
                 << short_symbols << q << long_symbols << endl;
         }
 
@@ -198,7 +174,10 @@ void code_generator::expand(quad_list *q_list)
         switch (q->op_code) {
         case q_rload:
         case q_iload:
-            out << "\t\t" << "mov" << "\t" << "rax, " << q->int1 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, " << q->int1 << endl;
             store(RAX, q->sym3);
             break;
 
@@ -207,56 +186,85 @@ void code_generator::expand(quad_list *q_list)
             int label2 = sym_tab->get_next_label();
 
             fetch(q->sym1, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << label << endl;
             // Not equal branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // Equal branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" <<  endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
         case q_ruminus:
             fetch_float(q->sym1);
-            out << "\t\t" << "fchs" << endl;
+            out << "\t\t"
+                << "fchs" << endl;
             store_float(q->sym3);
             break;
 
         case q_iuminus:
             fetch(q->sym1, RAX);
-            out << "\t\t" << "neg" << "\t" << "rax" << endl;
+            out << "\t\t"
+                << "neg"
+                << "\t"
+                << "rax" << endl;
             store(RAX, q->sym3);
             break;
 
         case q_rplus:
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "faddp" << endl;
+            out << "\t\t"
+                << "faddp" << endl;
             store_float(q->sym3);
             break;
 
         case q_iplus:
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "add" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "add"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RAX, q->sym3);
             break;
 
         case q_rminus:
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "fsubp" << endl;
+            out << "\t\t"
+                << "fsubp" << endl;
             store_float(q->sym3);
             break;
 
         case q_iminus:
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "sub" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "sub"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RAX, q->sym3);
             break;
 
@@ -265,19 +273,42 @@ void code_generator::expand(quad_list *q_list)
             int label2 = sym_tab->get_next_label();
 
             fetch(q->sym1, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jne" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jne"
+                << "\t"
+                << "L" << label << endl;
             fetch(q->sym2, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jne" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jne"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -286,56 +317,92 @@ void code_generator::expand(quad_list *q_list)
             int label2 = sym_tab->get_next_label();
 
             fetch(q->sym1, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << label << endl;
             fetch(q->sym2, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << label << endl;
             // True branch
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // False branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
         case q_rmult:
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "fmulp" << endl;
+            out << "\t\t"
+                << "fmulp" << endl;
             store_float(q->sym3);
             break;
 
         case q_imult:
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "imul" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "imul"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RAX, q->sym3);
             break;
 
         case q_rdivide:
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "fdivp" << endl;
+            out << "\t\t"
+                << "fdivp" << endl;
             store_float(q->sym3);
             break;
 
         case q_idivide:
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cqo" << endl;
-            out << "\t\t" << "idiv" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "cqo" << endl;
+            out << "\t\t"
+                << "idiv"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RAX, q->sym3);
             break;
 
         case q_imod:
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cqo" << endl;
-            out << "\t\t" << "idiv" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "cqo" << endl;
+            out << "\t\t"
+                << "idiv"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RDX, q->sym3);
             break;
 
@@ -345,18 +412,38 @@ void code_generator::expand(quad_list *q_list)
 
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "fcomip" << "\t" << "ST(0), ST(1)" << endl;
+            out << "\t\t"
+                << "fcomip"
+                << "\t"
+                << "ST(0), ST(1)" << endl;
             // Clear the stack
-            out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "fstp"
+                << "\t"
+                << "ST(0)" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -366,16 +453,33 @@ void code_generator::expand(quad_list *q_list)
 
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cmp" << "\t" << "rax, rcx" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, rcx" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -385,18 +489,38 @@ void code_generator::expand(quad_list *q_list)
 
             fetch_float(q->sym1);
             fetch_float(q->sym2);
-            out << "\t\t" << "fcomip" << "\t" << "ST(0), ST(1)" << endl;
+            out << "\t\t"
+                << "fcomip"
+                << "\t"
+                << "ST(0), ST(1)" << endl;
             // Clear the stack
-            out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;
-            out << "\t\t" << "jne" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "fstp"
+                << "\t"
+                << "ST(0)" << endl;
+            out << "\t\t"
+                << "jne"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -406,16 +530,33 @@ void code_generator::expand(quad_list *q_list)
 
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cmp" << "\t" << "rax, rcx" << endl;
-            out << "\t\t" << "jne" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, rcx" << endl;
+            out << "\t\t"
+                << "jne"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -426,18 +567,38 @@ void code_generator::expand(quad_list *q_list)
             // We need to push in reverse order for this to work
             fetch_float(q->sym2);
             fetch_float(q->sym1);
-            out << "\t\t" << "fcomip" << "\t" << "ST(0), ST(1)" << endl;
+            out << "\t\t"
+                << "fcomip"
+                << "\t"
+                << "ST(0), ST(1)" << endl;
             // Clear the stack
-            out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;
-            out << "\t\t" << "jb" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "fstp"
+                << "\t"
+                << "ST(0)" << endl;
+            out << "\t\t"
+                << "jb"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -447,16 +608,33 @@ void code_generator::expand(quad_list *q_list)
 
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cmp" << "\t" << "rax, rcx" << endl;
-            out << "\t\t" << "jl" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, rcx" << endl;
+            out << "\t\t"
+                << "jl"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -467,18 +645,38 @@ void code_generator::expand(quad_list *q_list)
             // We need to push in reverse order for this to work
             fetch_float(q->sym2);
             fetch_float(q->sym1);
-            out << "\t\t" << "fcomip" << "\t" << "ST(0), ST(1)" << endl;
+            out << "\t\t"
+                << "fcomip"
+                << "\t"
+                << "ST(0), ST(1)" << endl;
             // Clear the stack
-            out << "\t\t" << "fstp" << "\t" << "ST(0)" << endl;
-            out << "\t\t" << "ja" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "fstp"
+                << "\t"
+                << "ST(0)" << endl;
+            out << "\t\t"
+                << "ja"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -488,16 +686,33 @@ void code_generator::expand(quad_list *q_list)
 
             fetch(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "cmp" << "\t" << "rax, rcx" << endl;
-            out << "\t\t" << "jg" << "\t" << "L" << label << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, rcx" << endl;
+            out << "\t\t"
+                << "jg"
+                << "\t"
+                << "L" << label << endl;
             // False branch
-            out << "\t\t" << "mov" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "jmp" << "\t" << "L" << label2 << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << label2 << endl;
             // True branch
-            out << "\t\t" << "L" << label << ":" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, 1" << endl;
+            out << "\t\t"
+                << "L" << label << ":" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, 1" << endl;
 
-            out << "\t\t" << "L" << label2 << ":" << endl;
+            out << "\t\t"
+                << "L" << label2 << ":" << endl;
             store(RAX, q->sym3);
             break;
         }
@@ -505,7 +720,10 @@ void code_generator::expand(quad_list *q_list)
         case q_istore:
             fetch(q->sym1, RAX);
             fetch(q->sym3, RCX);
-            out << "\t\t" << "mov" << "\t" << "[rcx], rax" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "[rcx], rax" << endl;
             break;
 
         case q_rassign:
@@ -525,14 +743,23 @@ void code_generator::expand(quad_list *q_list)
         case q_rreturn:
         case q_ireturn:
             fetch(q->sym2, RAX);
-            out << "\t\t" << "jmp" << "\t" << "L" << q->int1 << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << q->int1 << endl;
             break;
 
         case q_lindex:
             array_address(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "imul" << "\t" << "rcx, " << STACK_WIDTH << endl;
-            out << "\t\t" << "sub" << "\t" << "rax, rcx" << endl;
+            out << "\t\t"
+                << "imul"
+                << "\t"
+                << "rcx, " << STACK_WIDTH << endl;
+            out << "\t\t"
+                << "sub"
+                << "\t"
+                << "rax, rcx" << endl;
             store(RAX, q->sym3);
             break;
 
@@ -540,19 +767,31 @@ void code_generator::expand(quad_list *q_list)
         case q_irindex:
             array_address(q->sym1, RAX);
             fetch(q->sym2, RCX);
-            out << "\t\t" << "imul" << "\t" << "rcx, " << STACK_WIDTH << endl;
-            out << "\t\t" << "sub" << "\t" << "rax, rcx" << endl;
-            out << "\t\t" << "mov" << "\t" << "rax, [rax]" << endl;
+            out << "\t\t"
+                << "imul"
+                << "\t"
+                << "rcx, " << STACK_WIDTH << endl;
+            out << "\t\t"
+                << "sub"
+                << "\t"
+                << "rax, rcx" << endl;
+            out << "\t\t"
+                << "mov"
+                << "\t"
+                << "rax, [rax]" << endl;
             store(RAX, q->sym3);
             break;
 
         case q_itor: {
-            block_level level;      // Current scope level.
-            int offset;             // Offset within current activation record.
+            block_level level; // Current scope level.
+            int offset;        // Offset within current activation record.
 
             find(q->sym1, &level, &offset);
             frame_address(level, RCX);
-            out << "\t\t" << "fild" << "\t" << "qword ptr [rcx";
+            out << "\t\t"
+                << "fild"
+                << "\t"
+                << "qword ptr [rcx";
             if (offset >= 0) {
                 out << "+" << offset;
             } else {
@@ -560,17 +799,25 @@ void code_generator::expand(quad_list *q_list)
             }
             out << "]" << endl;
             store_float(q->sym3);
-        }
-        break;
+        } break;
 
         case q_jmp:
-            out << "\t\t" << "jmp" << "\t" << "L" << q->int1 << endl;
+            out << "\t\t"
+                << "jmp"
+                << "\t"
+                << "L" << q->int1 << endl;
             break;
 
         case q_jmpf:
             fetch(q->sym2, RAX);
-            out << "\t\t" << "cmp" << "\t" << "rax, 0" << endl;
-            out << "\t\t" << "je" << "\t" << "L" << q->int1 << endl;
+            out << "\t\t"
+                << "cmp"
+                << "\t"
+                << "rax, 0" << endl;
+            out << "\t\t"
+                << "je"
+                << "\t"
+                << "L" << q->int1 << endl;
             break;
 
         case q_labl:

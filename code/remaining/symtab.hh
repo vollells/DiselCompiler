@@ -19,7 +19,7 @@ typedef int block_level;
 /* Since constants can be either integers or reals, we use a union to hold the
    value for now. */
 typedef union {
-    long   ival;
+    long ival;
     double rval;
 } constant_value;
 
@@ -99,17 +99,12 @@ class symbol_table;
  */
 extern symbol_table *sym_tab; // implementation in symtab.cc
 
-
-
 /* Global symbol table variables. These indexes point to symbols in the symbol
    table which represent information about types. Declared "for real" in
    symbol.cc. */
 extern sym_index void_type;
 extern sym_index integer_type;
 extern sym_index real_type;
-
-
-
 
 /**********************************
  *** THE VARIOUS SYMBOL CLASSES ***
@@ -118,8 +113,7 @@ extern sym_index real_type;
 /*! The symbol table consists of entries of subclasses to symbol. This class
    contains data that are common to all symbol types.
    This class is never used directly. Use the derived classes instead. */
-class symbol
-{
+class symbol {
 protected:
     // Every symbol must define a print method, which is called when the
     // symbol is sent to an outstream.
@@ -134,7 +128,9 @@ protected:
 
     friend ostream &short_symbols(ostream &);
 
-    enum format_types { LONG_FORMAT, SUMMARY_FORMAT, SHORT_FORMAT };
+    enum format_types { LONG_FORMAT,
+                        SUMMARY_FORMAT,
+                        SHORT_FORMAT };
 
     typedef enum format_types format_type;
 
@@ -249,10 +245,8 @@ public:
     friend ostream &operator<<(ostream &, symbol *);
 };
 
-
 /*! Derived symbol type, used for constants. */
-class constant_symbol: public symbol
-{
+class constant_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -274,10 +268,8 @@ public:
     }
 };
 
-
 /*! Derived symbol type, used for variables. */
-class variable_symbol: public symbol
-{
+class variable_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -290,7 +282,6 @@ public:
         return this;
     }
 };
-
 
 /*! \brief Derived symbol type, used for arrays.
 
@@ -308,8 +299,7 @@ which in this example would have the value ``10``. To be slightly
 more general, we also have an attribute, ``#index_type``, which at
 present can only point to the name type ``#integer_type``.
  */
-class array_symbol: public symbol
-{
+class array_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -328,7 +318,6 @@ public:
         return this;
     }
 };
-
 
 /*!
 Parameters require particular checking, as the formal parameters are to
@@ -373,8 +362,7 @@ you have that sequence clear, getting them to work will be a lot easier.
 \endverbatim
 
  */
-class parameter_symbol: public symbol
-{
+class parameter_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -394,10 +382,8 @@ public:
     }
 };
 
-
 /*! Derived symbol type, used for procedures. */
-class procedure_symbol: public symbol
-{
+class procedure_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -429,10 +415,8 @@ public:
     }
 };
 
-
 /*! Derived symbol type, used for functions. */
-class function_symbol: public symbol
-{
+class function_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
@@ -464,19 +448,16 @@ public:
     }
 };
 
-
 /*!
    Derived symbol type, used for nametypes. Since it contains no new data
    fields, we might as well use symbol directly. This subclass mainly exists
    for abstraction's sake.
   */
-class nametype_symbol: public symbol
-{
+class nametype_symbol : public symbol {
 protected:
     virtual void print(ostream &);
 
 public:
-
     // Constructor. Args: identifier.
     nametype_symbol(const pool_index);
 
@@ -485,7 +466,6 @@ public:
         return this;
     }
 };
-
 
 /* IO manipulators to control the level of detail output by sending a symbol
    to an ostream. NOTE: Do we really need these here, since they're already
@@ -500,13 +480,9 @@ ostream &long_symbols(ostream &);
 /* Allow a node to be sent to an outstream for printing. */
 ostream &operator<<(ostream &, symbol *);
 
-
-
-
 /******************************
  *** THE SYMBOL TABLE CLASS ***
  ******************************/
-
 
 /* The symbol table. Presents an interfaced used by parser.y.
    The idea is that in parser.y, the code will look something like this:
@@ -523,8 +499,7 @@ ostream &operator<<(ostream &, symbol *);
             }
             ;
 */
-class symbol_table
-{
+class symbol_table {
 private:
     // --- String pool variables. ---
 
@@ -698,7 +673,7 @@ public:
         Watch out, though: this gets very long if you have more than a few symbols installed.
      \endverbatim
      */
-    void  print(int);
+    void print(int);
 
     //! Given a symbol table index, return its pool_index, or 0 (zero) if no such symbol existed.
     pool_index get_symbol_id(const sym_index);
@@ -875,6 +850,5 @@ public:
     */
     sym_index close_scope();
 };
-
 
 #endif

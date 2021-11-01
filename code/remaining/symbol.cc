@@ -4,16 +4,13 @@
  *** The various symbol constructors ***
  ***************************************/
 
-
 /* Symbol superclass constructor. */
-symbol::symbol(pool_index pool_p)
-{
+symbol::symbol(pool_index pool_p) {
     id = pool_p;
     // All symbols are tagged as SYM_UNDEF at creation.
     // This is used later to check for redeclarations.
     tag = SYM_UNDEF;
 }
-
 
 /* Constructor for constant_symbol. Note the somewhat weird syntax for
    invoking the superclass constructor with an argument. The effect of the
@@ -21,71 +18,55 @@ symbol::symbol(pool_index pool_p)
    constructor for the symbol class with the argument pool_p. This syntax,
    will be used a lot in this lab course, so you might as well get used
    to it right away, even if it is new to you. */
-constant_symbol::constant_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+constant_symbol::constant_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
     // Since the const_value is a union of int and float (since a constant can
     // be both integer and real), we just pick one of them arbitrarily and
     // decide that all uninitiated constants have the integer value 0.
     const_value.ival = 0;
 }
 
-
 /* Constructor for variable_symbol. */
 /* NOTE: Maybe always set the type to void_type here, too? */
-variable_symbol::variable_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+variable_symbol::variable_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
 }
 
-
 /* Constructor for array_symbol. */
-array_symbol::array_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+array_symbol::array_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
     // Illegal, must be changed later.
     index_type = void_type;
     array_cardinality = 0;
 }
 
-
 /* Constructor for parameter_symbol. */
-parameter_symbol::parameter_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+parameter_symbol::parameter_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
     size = 0;
     preceding = NULL;
 }
 
-
 /* Constructor for procedure_symbol. */
-procedure_symbol::procedure_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+procedure_symbol::procedure_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
     ar_size = 0;
     label_nr = 0;
     last_parameter = NULL;
 }
-
 
 /* Constructor for function_symbol. */
-function_symbol::function_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+function_symbol::function_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
     ar_size = 0;
     label_nr = 0;
     last_parameter = NULL;
 }
 
-
 /* Constructor for nametype_symbol. */
-nametype_symbol::nametype_symbol(const pool_index pool_p) :
-    symbol(pool_p)
-{
+nametype_symbol::nametype_symbol(const pool_index pool_p)
+    : symbol(pool_p) {
 }
-
-
-
 
 /*** Functions for printing symbol information ***/
 
@@ -93,11 +74,9 @@ nametype_symbol::nametype_symbol(const pool_index pool_p) :
 // symbol.
 symbol::format_type symbol::output_format = symbol::LONG_FORMAT;
 
-
 /* Prints information common to all symbols. The various subclasses add on
    their own info to this one, see below. */
-void symbol::print(ostream &o)
-{
+void symbol::print(ostream &o) {
     switch (output_format) {
     case LONG_FORMAT:
         o << "symbol:" << endl;
@@ -175,10 +154,8 @@ void symbol::print(ostream &o)
     }
 }
 
-
 /* Output stream operator for easy printing of symbol information. */
-ostream &operator<<(ostream &o, symbol *sym)
-{
+ostream &operator<<(ostream &o, symbol *sym) {
     if (sym == NULL) {
         return o << "(null)" << endl;
     }
@@ -187,12 +164,10 @@ ostream &operator<<(ostream &o, symbol *sym)
     return o;
 }
 
-
 /* Print data about a constant. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. Note that a
    constant can be integer _or_ real. */
-void constant_symbol::print(ostream &o)
-{
+void constant_symbol::print(ostream &o) {
     symbol::print(o);
     switch (output_format) {
     case LONG_FORMAT:
@@ -212,11 +187,9 @@ void constant_symbol::print(ostream &o)
     }
 }
 
-
 /* Print data about a variable. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void variable_symbol::print(ostream &o)
-{
+void variable_symbol::print(ostream &o) {
     symbol::print(o);
     switch (output_format) {
     case LONG_FORMAT:
@@ -231,12 +204,9 @@ void variable_symbol::print(ostream &o)
     }
 }
 
-
-
 /* Print data about an array. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void array_symbol::print(ostream &o)
-{
+void array_symbol::print(ostream &o) {
     symbol::print(o);
     switch (output_format) {
     case LONG_FORMAT:
@@ -255,12 +225,9 @@ void array_symbol::print(ostream &o)
     }
 }
 
-
-
 /* Print data about a parameter. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void parameter_symbol::print(ostream &o)
-{
+void parameter_symbol::print(ostream &o) {
     symbol::print(o);
     switch (output_format) {
     case LONG_FORMAT:
@@ -283,12 +250,9 @@ void parameter_symbol::print(ostream &o)
     }
 }
 
-
-
 /* Print data about a procedure. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void procedure_symbol::print(ostream &o)
-{
+void procedure_symbol::print(ostream &o) {
     symbol::print(o);
 
     switch (output_format) {
@@ -333,12 +297,9 @@ void procedure_symbol::print(ostream &o)
     }
 }
 
-
-
 /* Print data about a function. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void function_symbol::print(ostream &o)
-{
+void function_symbol::print(ostream &o) {
     symbol::print(o);
 
     switch (output_format) {
@@ -383,12 +344,9 @@ void function_symbol::print(ostream &o)
     }
 }
 
-
-
 /* Print data about a nametype. Helps debugging a lot. See the stream operator
    though, that's the easiest way to get this info printed. */
-void nametype_symbol::print(ostream &o)
-{
+void nametype_symbol::print(ostream &o) {
     symbol::print(o);
     switch (output_format) {
     case LONG_FORMAT:
@@ -403,24 +361,18 @@ void nametype_symbol::print(ostream &o)
     }
 }
 
-
 /* Io manipulators to control the level of detail given about symbols. */
-ostream &short_symbols(ostream &o)
-{
+ostream &short_symbols(ostream &o) {
     symbol::output_format = symbol::SHORT_FORMAT;
     return o;
 }
 
-
-ostream &summary_symbols(ostream &o)
-{
+ostream &summary_symbols(ostream &o) {
     symbol::output_format = symbol::SUMMARY_FORMAT;
     return o;
 }
 
-
-ostream &long_symbols(ostream &o)
-{
+ostream &long_symbols(ostream &o) {
     symbol::output_format = symbol::LONG_FORMAT;
     return o;
 }

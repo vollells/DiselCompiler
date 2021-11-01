@@ -7,7 +7,6 @@
 
 using namespace std;
 
-
 /*** This file contains some error and debug output routines common to all
      classes and files. Breaking the OO paradigm for the sake of convenience...
      So sue me. ***/
@@ -20,8 +19,7 @@ extern int yylineno;
 
 /* This class contains (starting) line and column of a token, and is used to
    report the positions of errors in the code. */
-class position_information
-{
+class position_information {
 private:
     int line;
 
@@ -37,7 +35,6 @@ public:
     int get_column();
 };
 
-
 /* Various methods for printing things, with or without position info.
    They are all defined for real in error.cc. */
 
@@ -47,17 +44,16 @@ extern void fatal(string);
 //! This must be defined (for ``flex``), but using ``error(pos) << "foo"`` is preferable.
 extern void yyerror(string);
 
-extern ostream  &error(string header = "Error: ");
+extern ostream &error(string header = "Error: ");
 
-extern ostream  &error(position_information *);
+extern ostream &error(position_information *);
 
-extern ostream  &type_error();
+extern ostream &type_error();
 
-extern ostream  &type_error(position_information *);
+extern ostream &type_error(position_information *);
 
-extern ostream  &debug(string header = "Debug: ");
+extern ostream &debug(string header = "Debug: ");
 
-extern ostream  &debug(position_information *);
-
+extern ostream &debug(position_information *);
 
 #endif
