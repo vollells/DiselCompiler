@@ -94,69 +94,27 @@ DIGIT [0-9]
 "<>"  { SPAN(); return T_NOTEQ; }
 
 
-of                       {
-                            
-                         }
-if                       {
-                            
-                         }
-do                       {
-                            
-                         }
-or                       {
-                            
-                         }
-var                      {
-                            
-                         }
-end                      {
-                            
-                         }
-and                      {
-                            
-                         }
-div                      {
-                            
-                         }
-mod                      {
-                            
-                         }
-not                      {
-                            
-                         }
-then                     {
-                            
-                         }
-else                     {
-                            
-                         }
-const                    {
-                            
-                         }
-array                    {
-                            
-                         }
-begin                    {
-                            
-                         }
-while                    {
-                            
-                         }
-elsif                    {
-                            
-                         }
-return                   {
-                            
-                         }
-program                  {
-                            
-                         }
-function                 {
-                            
-                         }
-procedure                {
-                            
-                         }
+of          { SPAN(); return T_OF; }
+if          { SPAN(); return T_IF; }
+do          { SPAN(); return T_DO; }
+or          { SPAN(); return T_OR; }
+var         { SPAN(); return T_VAR; }
+end         { SPAN(); return T_END; }
+and         { SPAN(); return T_AND; }
+div         { SPAN(); return T_IDIV; }
+mod         { SPAN(); return T_MOD; }
+not         { SPAN(); return T_NOT; }
+then        { SPAN(); return T_THEN; }
+else        { SPAN(); return T_ELSE; }
+const       { SPAN(); return T_CONST; }
+array       { SPAN(); return T_ARRAY; }
+begin       { SPAN(); return T_BEGIN; }
+while       { SPAN(); return T_WHILE; }
+elsif       { SPAN(); return T_ELSIF; }
+return      { SPAN(); return T_RETURN; }
+program     { SPAN(); return T_PROGRAM; }
+function    { SPAN(); return T_FUNCTION; }
+procedure   { SPAN(); return T_PROCEDURE; }
 
 
 \/\/.*$                  column = 0; /* Skip single-line comment */
@@ -182,8 +140,6 @@ procedure                {
                             yyterminate();
                          }
 }
-
- 
 
 <<EOF>>                  yyterminate();
 .                        yyerror("Illegal character");
