@@ -52,6 +52,13 @@ DIGIT [0-9]
     return T_INTNUM;
 }
 
+({DIGIT}+.{DIGIT}*|.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
+    yylloc.first_line = yylineno;
+    yylloc.first_column = column;
+    column += yyleng;
+    return T_REALNUM;
+}
+
 \.                       {
                             yylloc.first_line = yylineno;
                             yylloc.first_column = column;
