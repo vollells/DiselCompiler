@@ -43,6 +43,13 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 
 /* If you want to include any flex declarations, this is where to do it. */
 
+/*
+ TODO
+  - seperators
+  - strings
+  - parse reals and ints to actual numbers 
+ */
+
 %x c_comment
 DIGIT [0-9]
 /* {DIGIT}+"."{DIGIT}*
@@ -53,12 +60,8 @@ DIGIT [0-9]
 /* Your code should be entered below the %%. Expressions to handle the
    following: Diesel comments, Diesel string constants, Diesel
    identifiers, integers, reals, and whitespace. */
-%%
 
-// TODO
-//  - seperators
-//  - strings
-//  - parse reals and ints to actual numbers 
+%%
 
 \n       { column = 0; }
 
@@ -72,7 +75,7 @@ DIGIT [0-9]
     return T_REALNUM;
 }
 
-[A-z_]+ {
+[A-Z_]+ {
     SPAN();
     auto captialized = sym_tab->capitalize(yytext);
     yylval.pool_p = sym_tab->pool_install(captialized);
