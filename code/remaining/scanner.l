@@ -50,7 +50,7 @@ extern YYLTYPE yylloc; // Used for position information, see below.
   - parse reals and ints to actual numbers 
  */
 
-%x c_comment
+%x c_comment disel_comment
 DIGIT [0-9]
 /* {DIGIT}+"."{DIGIT}*
  ID [a-z][a-z0-9]* */
@@ -87,6 +87,26 @@ DIGIT [0-9]
     auto captialized = sym_tab->capitalize(yytext);
     yylval.pool_p = sym_tab->pool_install(captialized);
     return T_IDENT;
+\{ {
+    column += yyleng;
+    BEGIN(disel_comment);
+}
+<disel_comment>
+{
+    "\}" {
+        column += 2;
+        BEGIN(INITIAL);
+    }
+    "/{" {
+        column += 2;
+        yyerror("Suspicious comment");
+    }
+    [^\n] column++; /* Skip stuff in comments */
+    \n column = 0;
+    <<EOF>> {
+        yyerror("Unterminated comment");
+        yyterminate();
+    }
 }
 
 \.    { SPAN(); return T_DOT; }
