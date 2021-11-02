@@ -72,7 +72,8 @@ DIGIT [0-9]
     return T_INTNUM;
 }
 
-({DIGIT}+.{DIGIT}*|.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
+
+({DIGIT}+\.{DIGIT}*|\.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
     SPAN();
     yylval.rval = stof(yytext);
     return T_REALNUM;
