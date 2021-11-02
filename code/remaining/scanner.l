@@ -65,7 +65,7 @@ DIGIT [0-9]
 %%
 
 \n       { column = 0; }
-[ ]+     { column++; }
+[ ]+     { column += yyleng; }
 
 \.    { SPAN(); return T_DOT; }
 ;     { SPAN(); return T_SEMICOLON; }
@@ -159,7 +159,7 @@ procedure   { SPAN(); return T_PROCEDURE; }
     try{
         yylval.rval = stof(yytext);
     } catch (std::out_of_range&){
-        yyerror("Integer out of range");
+        yyerror("Float out of range");
     }
     return T_REALNUM;
 }
@@ -169,16 +169,27 @@ procedure   { SPAN(); return T_PROCEDURE; }
     try{
         yylval.ival = stol(yytext);
     } catch (std::out_of_range&) {
-        yyerror("Float out of range");
+        yylval.ival = 0; // Just some invalid value
+        yyerror("Integer out of range");
     }
     return T_INTNUM;
 }
 
-'([^']*('')?)*' {
+'([^'\n]*('')?)*['\n] {
     SPAN();
-    char* fixed_string = sym_tab->fix_string(yytext);
-    yylval.str = sym_tab->pool_install(fixed_string);
-    return T_STRINGCONST;
+    bool valid = true;
+    for (char* c = yytext; *c && valid; c++) {
+        if (*c == '\n') {
+            column = 0;
+            yyerror("Newline in string");
+            valid = false;
+        }
+    }
+    if (valid) {
+        char* fixed_string = sym_tab->fix_string(yytext);
+        yylval.str = sym_tab->pool_install(fixed_string);
+        return T_STRINGCONST;
+    }
 }
 
 [A-Z_][0-9A-Z_]* {
