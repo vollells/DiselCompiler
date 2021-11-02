@@ -23,6 +23,16 @@ int column = 0;
 
 extern YYLTYPE yylloc; // Used for position information, see below.
 
+// We don't have tokens over multiple lines
+#define SPAN() \
+{                               \
+    yylloc.first_line = yylineno; \
+    yylloc.first_column = column; \
+    column += yyleng;             \
+    yylloc.last_line = yylineno;  \
+    yylloc.last_column = column;  \
+}                               \
+
 %}
 
 %option yylineno
@@ -32,6 +42,13 @@ extern YYLTYPE yylloc; // Used for position information, see below.
 %option outfile = "scanner.cc"
 
 /* If you want to include any flex declarations, this is where to do it. */
+
+/*
+ TODO
+  - seperators
+  - strings
+  - parse reals and ints to actual numbers 
+ */
 
 %x c_comment
 DIGIT [0-9]
@@ -43,189 +60,68 @@ DIGIT [0-9]
 /* Your code should be entered below the %%. Expressions to handle the
    following: Diesel comments, Diesel string constants, Diesel
    identifiers, integers, reals, and whitespace. */
+
 %%
 
+\n       { column = 0; }
+
 {DIGIT}+ {
-    yylloc.first_line = yylineno;
-    yylloc.first_column = column;
-    column += yyleng;
+    SPAN();
     return T_INTNUM;
 }
 
 ({DIGIT}+.{DIGIT}*|.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
-    yylloc.first_line = yylineno;
-    yylloc.first_column = column;
-    column += yyleng;
+    SPAN();
     return T_REALNUM;
 }
 
-\.                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_DOT;
-                         }
-;                        {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_SEMICOLON;
-                         }
-=                        {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_EQ;
-                         }
-\:                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_COLON;
-                         }
-\(                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_LEFTPAR;
-                         }
-\)                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_RIGHTPAR;
-                         }
-\[                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_LEFTBRACKET;
-                         }
-\]                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_RIGHTBRACKET;
-                         }
-,                        {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_COMMA;
-                         }
-\<                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_LESSTHAN;
-                         }
-\>                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_GREATERTHAN;
-                         }
-\+                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_ADD;
-                         }
-\-                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_SUB;
-                         }
-\*                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_MUL;
-                         }
-\/                       {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_RDIV;
-                         }
-":="                     {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_ASSIGN;
-                         }
-"<>"                     {
-                            yylloc.first_line = yylineno;
-                            yylloc.first_column = column;
-                            column += yyleng;
-                            return T_NOTEQ;
-                         }
+[A-Z_]+ {
+    SPAN();
+    auto captialized = sym_tab->capitalize(yytext);
+    yylval.pool_p = sym_tab->pool_install(captialized);
+    return T_IDENT;
+}
+
+\.    { SPAN(); return T_DOT; }
+;     { SPAN(); return T_SEMICOLON; }
+=     { SPAN(); return T_EQ; }
+\:    { SPAN(); return T_COLON; }
+\(    { SPAN(); return T_LEFTPAR; }
+\)    { SPAN(); return T_RIGHTPAR; }
+\[    { SPAN(); return T_LEFTBRACKET; }
+\]    { SPAN(); return T_RIGHTBRACKET; }
+,     { SPAN(); return T_COMMA; }
+\<    { SPAN(); return T_LESSTHAN; }
+\>    { SPAN(); return T_GREATERTHAN; }
+\+    { SPAN(); return T_ADD; }
+\-    { SPAN(); return T_SUB; }
+\*    { SPAN(); return T_MUL; }
+\/    { SPAN(); return T_RDIV; }
+":="  { SPAN(); return T_ASSIGN; }
+"<>"  { SPAN(); return T_NOTEQ; }
 
 
-of                       {
-                            
-                         }
-if                       {
-                            
-                         }
-do                       {
-                            
-                         }
-or                       {
-                            
-                         }
-var                      {
-                            
-                         }
-end                      {
-                            
-                         }
-and                      {
-                            
-                         }
-div                      {
-                            
-                         }
-mod                      {
-                            
-                         }
-not                      {
-                            
-                         }
-then                     {
-                            
-                         }
-else                     {
-                            
-                         }
-const                    {
-                            
-                         }
-array                    {
-                            
-                         }
-begin                    {
-                            
-                         }
-while                    {
-                            
-                         }
-elsif                    {
-                            
-                         }
-return                   {
-                            
-                         }
-program                  {
-                            
-                         }
-function                 {
-                            
-                         }
-procedure                {
-                            
-                         }
+of          { SPAN(); return T_OF; }
+if          { SPAN(); return T_IF; }
+do          { SPAN(); return T_DO; }
+or          { SPAN(); return T_OR; }
+var         { SPAN(); return T_VAR; }
+end         { SPAN(); return T_END; }
+and         { SPAN(); return T_AND; }
+div         { SPAN(); return T_IDIV; }
+mod         { SPAN(); return T_MOD; }
+not         { SPAN(); return T_NOT; }
+then        { SPAN(); return T_THEN; }
+else        { SPAN(); return T_ELSE; }
+const       { SPAN(); return T_CONST; }
+array       { SPAN(); return T_ARRAY; }
+begin       { SPAN(); return T_BEGIN; }
+while       { SPAN(); return T_WHILE; }
+elsif       { SPAN(); return T_ELSIF; }
+return      { SPAN(); return T_RETURN; }
+program     { SPAN(); return T_PROGRAM; }
+function    { SPAN(); return T_FUNCTION; }
+procedure   { SPAN(); return T_PROCEDURE; }
 
 
 \/\/.*$                  column = 0; /* Skip single-line comment */
@@ -251,8 +147,6 @@ procedure                {
                             yyterminate();
                          }
 }
-
- 
 
 <<EOF>>                  yyterminate();
 .                        yyerror("Illegal character");
