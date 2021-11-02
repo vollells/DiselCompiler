@@ -67,11 +67,13 @@ DIGIT [0-9]
 
 {DIGIT}+ {
     SPAN();
+    yylval.ival = stoi(yytext);
     return T_INTNUM;
 }
 
 ({DIGIT}+.{DIGIT}*|.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
     SPAN();
+    yylval.rval = stof(yytext);
     return T_REALNUM;
 }
 
