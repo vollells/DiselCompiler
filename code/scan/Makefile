@@ -33,7 +33,7 @@ clean :
 	touch $(DPFILE)
 
 lab1: all
-	- ./scanner ../testpgm/scannertest1.d 2>&1 | diff -ub ../trace/scannertest1.trace -
+	- ./scanner ../testpgm/scannertest1.d 2>&1 | diff -ub --color=always ../trace/scannertest1.trace -
 
 $(DPFILE) depend : $(SOURCES) $(HEADERS)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(SOURCES) > $(DPFILE)
