@@ -158,7 +158,7 @@ procedure   { SPAN(); return T_PROCEDURE; }
     SPAN();
     try{
         yylval.rval = stof(yytext);
-    } catch (std::out_of_range){
+    } catch (std::out_of_range&){
         yyerror("Integer out of range");
     }
     return T_REALNUM;
@@ -168,7 +168,7 @@ procedure   { SPAN(); return T_PROCEDURE; }
     SPAN();
     try{
         yylval.ival = stol(yytext);
-    } catch (std::out_of_range) {
+    } catch (std::out_of_range&) {
         yyerror("Float out of range");
     }
     return T_INTNUM;
