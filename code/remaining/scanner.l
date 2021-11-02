@@ -84,32 +84,6 @@ DIGIT [0-9]
     return T_STRINGCONST;
 }
 
-[A-Z_]+ {
-    SPAN();
-    auto captialized = sym_tab->capitalize(yytext);
-    yylval.pool_p = sym_tab->pool_install(captialized);
-    return T_IDENT;
-\{ {
-    column += yyleng;
-    BEGIN(disel_comment);
-}
-<disel_comment>
-{
-    "\}" {
-        column += 2;
-        BEGIN(INITIAL);
-    }
-    "/{" {
-        column += 2;
-        yyerror("Suspicious comment");
-    }
-    [^\n] column++; /* Skip stuff in comments */
-    \n column = 0;
-    <<EOF>> {
-        yyerror("Unterminated comment");
-        yyterminate();
-    }
-}
 
 \.    { SPAN(); return T_DOT; }
 ;     { SPAN(); return T_SEMICOLON; }
@@ -152,6 +126,34 @@ program     { SPAN(); return T_PROGRAM; }
 function    { SPAN(); return T_FUNCTION; }
 procedure   { SPAN(); return T_PROCEDURE; }
 
+[A-Z_]+ {
+    SPAN();
+    auto captialized = sym_tab->capitalize(yytext);
+    yylval.pool_p = sym_tab->pool_install(captialized);
+    return T_IDENT;
+}
+
+\{ {
+    column += yyleng;
+    BEGIN(disel_comment);
+}
+<disel_comment>
+{
+    "\}" {
+        column += 2;
+        BEGIN(INITIAL);
+    }
+    "/{" {
+        column += 2;
+        yyerror("Suspicious comment");
+    }
+    [^\n] column++; /* Skip stuff in comments */
+    \n column = 0;
+    <<EOF>> {
+        yyerror("Unterminated comment");
+        yyterminate();
+    }
+}
 
 \/\/.*$                  column = 0; /* Skip single-line comment */
 "/\*"                    {
