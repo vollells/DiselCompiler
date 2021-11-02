@@ -1,3 +1,4 @@
+
 %{
 
 #include <stdlib.h>
@@ -66,27 +67,6 @@ DIGIT [0-9]
 \n       { column = 0; }
 [ ]+     { column++; }
 
-{DIGIT}+ {
-    SPAN();
-    yylval.ival = stoi(yytext);
-    return T_INTNUM;
-}
-
-
-({DIGIT}+\.{DIGIT}*|\.{DIGIT}+)([eE][-+]?{DIGIT}+)?  {
-    SPAN();
-    yylval.rval = stof(yytext);
-    return T_REALNUM;
-}
-
-'([^']*('')?)*' {
-    SPAN();
-    char* fixed_string = sym_tab->fix_string(yytext);
-    yylval.str = sym_tab->pool_install(fixed_string);
-    return T_STRINGCONST;
-}
-
-
 \.    { SPAN(); return T_DOT; }
 ;     { SPAN(); return T_SEMICOLON; }
 =     { SPAN(); return T_EQ; }
@@ -127,13 +107,6 @@ return      { SPAN(); return T_RETURN; }
 program     { SPAN(); return T_PROGRAM; }
 function    { SPAN(); return T_FUNCTION; }
 procedure   { SPAN(); return T_PROCEDURE; }
-
-[A-Z_]+ {
-    SPAN();
-    auto captialized = sym_tab->capitalize(yytext);
-    yylval.pool_p = sym_tab->pool_install(captialized);
-    return T_IDENT;
-}
 
 \{ {
     column += yyleng;
@@ -179,6 +152,40 @@ procedure   { SPAN(); return T_PROCEDURE; }
                             yyerror("Unterminated comment");
                             yyterminate();
                          }
+}
+
+(({DIGIT}+\.{DIGIT}*|\.{DIGIT}+)([eE][-+]?{DIGIT}+)?|{DIGIT}([eE][-+]?{DIGIT}+))  {
+    SPAN();
+    try{
+        yylval.rval = stof(yytext);
+    } catch (std::out_of_range){
+        yyerror("Integer out of range");
+    }
+    return T_REALNUM;
+}
+
+{DIGIT}+ {
+    SPAN();
+    try{
+        yylval.ival = stol(yytext);
+    } catch (std::out_of_range) {
+        yyerror("Float out of range");
+    }
+    return T_INTNUM;
+}
+
+'([^']*('')?)*' {
+    SPAN();
+    char* fixed_string = sym_tab->fix_string(yytext);
+    yylval.str = sym_tab->pool_install(fixed_string);
+    return T_STRINGCONST;
+}
+
+[A-Z_][0-9A-Z_]* {
+    SPAN();
+    auto captialized = sym_tab->capitalize(yytext);
+    yylval.pool_p = sym_tab->pool_install(captialized);
+    return T_IDENT;
 }
 
 <<EOF>>                  yyterminate();
