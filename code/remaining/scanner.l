@@ -75,6 +75,13 @@ DIGIT [0-9]
     return T_REALNUM;
 }
 
+'([^']*('')?)*' {
+    SPAN();
+    char* fixed_string = sym_tab->fix_string(yytext);
+    yylval.str = sym_tab->pool_install(fixed_string);
+    return T_STRINGCONST;
+}
+
 [A-Z_]+ {
     SPAN();
     auto captialized = sym_tab->capitalize(yytext);
