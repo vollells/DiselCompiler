@@ -64,7 +64,7 @@ DIGIT [0-9]
 %%
 
 \n       { column = 0; }
-[ \t\n]+ {}
+[ ]+     { column++; }
 
 {DIGIT}+ {
     SPAN();
