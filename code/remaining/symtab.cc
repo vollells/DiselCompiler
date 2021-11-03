@@ -500,13 +500,18 @@ sym_index symbol_table::current_environment() {
 
 /* Increase the current_level by one. */
 void symbol_table::open_scope() {
-    /* Your code here */
+    block_table[current_level] = sym_pos;
+    current_level++;
+    assert(current_level < MAX_BLOCK && "Opening too many block! 8 is max");
 }
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope() {
-    /* Your code here */
-    return NULL_SYM;
+    assert(current_level && "Ill-formed scope closed");
+    auto new_level = block_table[current_level];
+    current_level--;
+    // TODO(ed): NULL_SYM ?
+    return new_level;
 }
 
 /*** Main symbol table methods. ***/
@@ -582,6 +587,24 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
     sym_table[sym_p]->type = type_p;
 }
 
+// Defined in the labb - adds a new entry to the hash and symbol tables
+sym_index symbol_table::insert_hash(const pool_index pool_p) {
+    hash_index hash_i = hash(pool_p);
+
+    sym_index old_entry = hash_table[hash_i];
+    sym_index new_entry = sym_pos;
+    sym_pos++;
+    hash_table[hash_i] = new_entry;
+
+    symbol *new_sym_entry = sym_table[new_entry];
+    new_sym_entry->back_link = hash_i;
+    if (old_entry != NULL_SYM) {
+        new_sym_entry->hash_link = old_entry;
+    }
+
+    return new_entry;
+}
+
 /* Install a symbol in the symbol table or return a sym_index to it if it was
    already installed. Note that the various subclasses of 'symbol' need to
    be used here. This function is called by the various enter_* methods.
@@ -590,11 +613,14 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
    for the type definition of sym_type.
    Remember that the attribute 'tag' and 'id' will be set when creating
    a new symbol inside the symbol constructor (take a look at symbol.cc).*/
-
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag) {
-    /* Your code here */
-    return 0; // Return index to the symbol we just created.
+    auto sym_index_p = insert_hash(pool_p);
+    auto string_index = insert_string_pool(pool_p);
+    sym_table[sym_index_p]->id = string_index;
+    sym_table[sym_index_p]->tag = tag;
+    sym_table[sym_index_p]->level = current_level;
+    return sym_index_p;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
