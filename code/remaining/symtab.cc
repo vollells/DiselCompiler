@@ -869,6 +869,7 @@ sym_index symbol_table::enter_function(position_information *pos,
     func->ar_size = 0;
     func->label_nr = get_next_label();
 
+    // WTF? @CourseStaff - you don't need to rewrite a pointer...
     sym_table[sym_p] = func;
 
     return sym_p;
@@ -877,8 +878,23 @@ sym_index symbol_table::enter_function(position_information *pos,
 /* Enter a procedure_symbol into the symbol table. */
 sym_index symbol_table::enter_procedure(position_information *pos,
                                         const pool_index pool_p) {
+    sym_index sym_p = install_symbol(pool_p, SYM_PROC);
+    procedure_symbol *proc = sym_table[sym_p]->get_procedure_symbol();
+
+    if (proc->tag != SYM_UNDEF) {
+        type_error(pos) << "Redeclaration: " << proc << endl;
+        return sym_p; // returns the original symbol
+    }
+
+    // :(
+    proc->tag = SYM_PROC;
+    proc->last_parameter = NULL;
+
+    proc->ar_size = 0;
+    proc->label_nr = get_next_label();
+
     /* Your code here */
-    return NULL_SYM;
+    return sym_p;
 }
 
 /* Enter a parameter into the symbol table. */
