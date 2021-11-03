@@ -31,6 +31,9 @@ symbol_table::symbol_table() {
        Take a look at figure 2 in the laboratory
        assignement.*/
 
+    // This is not okay...
+    sym_tab = this;
+
     // Always points to the last position in the string pool
     pool_pos = 0;
     // Set base size of string pool. Can be extended later on,
@@ -81,6 +84,7 @@ symbol_table::symbol_table() {
 
     // This "empty" symbol represents the global level.
     enter_procedure(dummy_pos, pool_install(capitalize("global.")));
+
     if (0 == sym_table[0]) {
         throw std::logic_error("Failed to install symbol");
     }
@@ -500,9 +504,11 @@ sym_index symbol_table::current_environment() {
 
 /* Increase the current_level by one. */
 void symbol_table::open_scope() {
-    block_table[current_level] = sym_pos;
     current_level++;
-    assert(current_level < MAX_BLOCK && "Opening too many block! 8 is max");
+    block_table[current_level] = sym_pos;
+    if (current_level > MAX_BLOCK) {
+        fatal("Opening too many block! 8 is max");
+    }
 }
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
@@ -511,14 +517,11 @@ sym_index symbol_table::close_scope() {
     auto new_level = block_table[current_level];
     current_level--;
 
-    for (; sym_pos >= new_level; sym_pos--) {
-        symbol *current_symbol = sym_table[sym_pos];
+    for (auto i = sym_pos; i >= new_level; i--) {
+        symbol *current_symbol = sym_table[i];
         hash_table[current_symbol->back_link] = current_symbol->hash_link;
-        sym_table[sym_pos] = nullptr;
-        delete current_symbol;
+        current_symbol->hash_link = -1;
     }
-
-    // TODO(ed): NULL_SYM ?
     return new_level;
 }
 
@@ -622,9 +625,8 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     hash_index hash_i = hash(pool_p);
 
     sym_index old_entry = hash_table[hash_i];
-    sym_index new_entry = sym_pos;
     sym_pos++;
-    hash_table[hash_i] = new_entry;
+    hash_table[hash_i] = sym_pos;
 
     symbol *new_sym_entry = nullptr;
 
@@ -639,14 +641,14 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     case SYM_UNDEF: fatal("Cannot Create symbol of type UNDEF"); break;
     }
 
-    sym_table[new_entry] = new_sym_entry;
+    sym_table[sym_pos] = new_sym_entry;
     new_sym_entry->back_link = hash_i;
     new_sym_entry->hash_link = old_entry;
     new_sym_entry->id = pool_p; // Is this right?
     // new_sym_entry->tag = tag;
     new_sym_entry->level = current_level;
 
-    return new_entry;
+    return sym_pos;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
@@ -892,8 +894,8 @@ sym_index symbol_table::enter_procedure(position_information *pos,
 
     proc->ar_size = 0;
     proc->label_nr = get_next_label();
+    proc->type = void_type;
 
-    /* Your code here */
     return sym_p;
 }
 
