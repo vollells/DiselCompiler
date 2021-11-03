@@ -510,6 +510,12 @@ sym_index symbol_table::close_scope() {
     assert(current_level && "Ill-formed scope closed");
     auto new_level = block_table[current_level];
     current_level--;
+
+    for ( ; sym_pos >= new_level ; sym_pos--) {
+        symbol* current_symbol = sym_table[sym_pos];
+        hash_table[current_symbol->back_link] = current_symbol->hash_link;
+    }
+
     // TODO(ed): NULL_SYM ?
     return new_level;
 }
@@ -598,9 +604,7 @@ sym_index symbol_table::insert_hash(const pool_index pool_p) {
 
     symbol *new_sym_entry = sym_table[new_entry];
     new_sym_entry->back_link = hash_i;
-    if (old_entry != NULL_SYM) {
-        new_sym_entry->hash_link = old_entry;
-    }
+    new_sym_entry->hash_link = old_entry;
 
     return new_entry;
 }
@@ -616,7 +620,7 @@ sym_index symbol_table::insert_hash(const pool_index pool_p) {
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag) {
     auto sym_index_p = insert_hash(pool_p);
-    auto string_index = insert_string_pool(pool_p);
+    auto string_index = pool_install(pool_lookup(pool_p));
     sym_table[sym_index_p]->id = string_index;
     sym_table[sym_index_p]->tag = tag;
     sym_table[sym_index_p]->level = current_level;
