@@ -528,7 +528,16 @@ sym_index symbol_table::close_scope() {
    a string_pool index. Starts searching in the current block level and
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p) {
-    /* Your code here */
+    hash_index hash_i = hash(pool_p);
+
+    sym_index entry = hash_table[hash_i];
+    while (entry != NULL_SYM) {
+        symbol *sym_entry = sym_table[entry];
+        if (pool_compare(sym_entry->id, pool_p)) {
+            return entry;
+        }
+        entry = sym_entry->hash_link;
+    }
     return NULL_SYM;
 }
 
