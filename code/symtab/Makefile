@@ -33,9 +33,9 @@ clean :
 	touch $(DPFILE)
 
 lab2: all
-	- ./symtab a 2>&1 | diff -ub ../trace/symtab2a.trace -
-	- ./symtab b 2>&1 | diff -ub ../trace/symtab2b.trace -
-	- ./symtab c 2>&1 | diff -ub ../trace/symtab2c.trace -
+	- ./symtab a 2>&1 | diff --color=always -ub ../trace/symtab2a.trace -
+	- ./symtab b 2>&1 | diff --color=always -ub ../trace/symtab2b.trace -
+	- ./symtab c 2>&1 | diff --color=always -ub ../trace/symtab2c.trace -
 
 $(DPFILE) depend : $(SOURCES) $(HEADERS)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(SOURCES) > $(DPFILE)
