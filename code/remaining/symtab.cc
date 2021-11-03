@@ -509,7 +509,9 @@ void symbol_table::open_scope() {
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope() {
-    assert(current_level && "Ill-formed scope closed");
+    if (!current_level) {
+        fatal("Cannot close the global scope");
+    }
     auto new_level = block_table[current_level];
     current_level--;
 
