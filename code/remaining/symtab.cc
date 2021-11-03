@@ -514,6 +514,8 @@ sym_index symbol_table::close_scope() {
     for (; sym_pos >= new_level; sym_pos--) {
         symbol *current_symbol = sym_table[sym_pos];
         hash_table[current_symbol->back_link] = current_symbol->hash_link;
+        sym_table[sym_pos] = nullptr;
+        delete current_symbol;
     }
 
     // TODO(ed): NULL_SYM ?
