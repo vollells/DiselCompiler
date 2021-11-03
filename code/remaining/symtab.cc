@@ -614,8 +614,11 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
    a new symbol inside the symbol constructor (take a look at symbol.cc).*/
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag) {
+    auto guess = lookup_symbol(pool_p);
+    if (guess != NULL_SYM && sym_table[guess]->level == current_level) {
+        return guess;
+    }
 
-    auto string_index = pool_install(pool_lookup(pool_p));
     hash_index hash_i = hash(pool_p);
 
     sym_index old_entry = hash_table[hash_i];
@@ -623,7 +626,7 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     sym_pos++;
     hash_table[hash_i] = new_entry;
 
-    symbol* new_sym_entry = nullptr;
+    symbol *new_sym_entry = nullptr;
 
     switch (tag) {
     case SYM_ARRAY: new_sym_entry = new array_symbol(pool_p); break;
@@ -639,8 +642,8 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
     sym_table[new_entry] = new_sym_entry;
     new_sym_entry->back_link = hash_i;
     new_sym_entry->hash_link = old_entry;
-    new_sym_entry->id = string_index;
-    new_sym_entry->tag = tag;
+    new_sym_entry->id = pool_p; // Is this right?
+    // new_sym_entry->tag = tag;
     new_sym_entry->level = current_level;
 
     return new_entry;
