@@ -31,9 +31,6 @@ symbol_table::symbol_table() {
        Take a look at figure 2 in the laboratory
        assignement.*/
 
-    // This is not okay...
-    sym_tab = this;
-
     // Always points to the last position in the string pool
     pool_pos = 0;
     // Set base size of string pool. Can be extended later on,
@@ -84,7 +81,6 @@ symbol_table::symbol_table() {
 
     // This "empty" symbol represents the global level.
     enter_procedure(dummy_pos, pool_install(capitalize("global.")));
-
     if (0 == sym_table[0]) {
         throw std::logic_error("Failed to install symbol");
     }
