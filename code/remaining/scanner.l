@@ -178,8 +178,9 @@ procedure   { SPAN(); return T_PROCEDURE; }
 '([^'\n]*('')?)*['\n] {
     SPAN();
     bool valid = true;
-    for (char* c = yytext; *c && valid; c++) {
-        if (*c == '\n') {
+    for (size_t i = 0; i < yyleng; i++) {
+        char c = yytext[i];
+        if (c == '\n') {
             column = 0;
             yyerror("Newline in string");
             valid = false;
