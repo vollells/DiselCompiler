@@ -601,9 +601,6 @@ public:
 
     // --- Symbol table methods. ---
 
-    // Insert a new symbol in theh hash and symbol table.
-    sym_index insert_hash(const pool_index);
-
     symbol *get_symbol(const sym_index);
 
     /*! \brief Installs a symbol in the symbol table and returns its index.

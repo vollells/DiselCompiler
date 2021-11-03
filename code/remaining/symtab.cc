@@ -511,8 +511,8 @@ sym_index symbol_table::close_scope() {
     auto new_level = block_table[current_level];
     current_level--;
 
-    for ( ; sym_pos >= new_level ; sym_pos--) {
-        symbol* current_symbol = sym_table[sym_pos];
+    for (; sym_pos >= new_level; sym_pos--) {
+        symbol *current_symbol = sym_table[sym_pos];
         hash_table[current_symbol->back_link] = current_symbol->hash_link;
     }
 
@@ -593,22 +593,6 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
     sym_table[sym_p]->type = type_p;
 }
 
-// Defined in the labb - adds a new entry to the hash and symbol tables
-sym_index symbol_table::insert_hash(const pool_index pool_p) {
-    hash_index hash_i = hash(pool_p);
-
-    sym_index old_entry = hash_table[hash_i];
-    sym_index new_entry = sym_pos;
-    sym_pos++;
-    hash_table[hash_i] = new_entry;
-
-    symbol *new_sym_entry = sym_table[new_entry];
-    new_sym_entry->back_link = hash_i;
-    new_sym_entry->hash_link = old_entry;
-
-    return new_entry;
-}
-
 /* Install a symbol in the symbol table or return a sym_index to it if it was
    already installed. Note that the various subclasses of 'symbol' need to
    be used here. This function is called by the various enter_* methods.
@@ -619,12 +603,36 @@ sym_index symbol_table::insert_hash(const pool_index pool_p) {
    a new symbol inside the symbol constructor (take a look at symbol.cc).*/
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag) {
-    auto sym_index_p = insert_hash(pool_p);
+
     auto string_index = pool_install(pool_lookup(pool_p));
-    sym_table[sym_index_p]->id = string_index;
-    sym_table[sym_index_p]->tag = tag;
-    sym_table[sym_index_p]->level = current_level;
-    return sym_index_p;
+    hash_index hash_i = hash(pool_p);
+
+    sym_index old_entry = hash_table[hash_i];
+    sym_index new_entry = sym_pos;
+    sym_pos++;
+    hash_table[hash_i] = new_entry;
+
+    symbol* new_sym_entry = nullptr;
+
+    switch (tag) {
+    case SYM_ARRAY: new_sym_entry = new array_symbol(pool_p); break;
+    case SYM_FUNC: new_sym_entry = new function_symbol(pool_p); break;
+    case SYM_PROC: new_sym_entry = new procedure_symbol(pool_p); break;
+    case SYM_VAR: new_sym_entry = new variable_symbol(pool_p); break;
+    case SYM_PARAM: new_sym_entry = new parameter_symbol(pool_p); break;
+    case SYM_CONST: new_sym_entry = new constant_symbol(pool_p); break;
+    case SYM_NAMETYPE: new_sym_entry = new nametype_symbol(pool_p); break;
+    case SYM_UNDEF: fatal("Cannot Create symbol of type UNDEF"); break;
+    }
+
+    sym_table[new_entry] = new_sym_entry;
+    new_sym_entry->back_link = hash_i;
+    new_sym_entry->hash_link = old_entry;
+    new_sym_entry->id = string_index;
+    new_sym_entry->tag = tag;
+    new_sym_entry->level = current_level;
+
+    return new_entry;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
