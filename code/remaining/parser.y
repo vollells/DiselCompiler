@@ -420,7 +420,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 ;
 
@@ -468,7 +468,7 @@ func_head       : T_FUNCTION T_IDENT
 
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
@@ -476,7 +476,7 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
@@ -746,7 +746,7 @@ factor          : rvariable
 
 func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = new ast_functioncall(POS(@2), $1, $3);
                 }
 
                 ;
