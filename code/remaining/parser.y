@@ -181,7 +181,8 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    $$ = new ast_procedurehead(,$2);
+                    $$ = new ast_procedurehead(POS(@2),$2);
+                    sym_tab->enter_procedure(POS(@1), $1);
                     sym_tab->open_scope();
                 }
                 ;
@@ -236,7 +237,7 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_variable(POS(@1), $1, $3->sym_p);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
@@ -417,9 +418,8 @@ func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_par
 
 proc_head       : T_PROCEDURE T_IDENT
                 {
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
+
                     // We add the function id to the symbol table.
                     sym_index proc_loc = sym_tab->enter_procedure(pos,
                                                                   $2);
@@ -503,18 +503,18 @@ param           : T_IDENT T_COLON type_id
 
 comp_stmt       : T_BEGIN stmt_list T_END
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 ;
 
 
 stmt_list       : stmt
                 {
-                    /* Your code here */
+                    $$ = new ast_stmt_list(POS(@1), $1);
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
-                    /* Your code here */
+                    $$ = new ast_stmt_list(POS(@3), $3, $1);
                 }
                 ;
 
@@ -533,7 +533,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | lvariable T_ASSIGN expr
                 {
-                    /* Your code here */
+                    $$ = new ast_assign(POS(@2), $1, $3);
                 }
                 | T_RETURN expr
                 {
@@ -632,7 +632,7 @@ expr_list       : expr
 
 expr            : simple_expr
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | expr T_EQ simple_expr
                 {
@@ -655,7 +655,7 @@ expr            : simple_expr
 
 simple_expr     : term
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | T_ADD term
                 {
@@ -682,7 +682,7 @@ simple_expr     : term
 
 term            : factor
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | term T_AND factor
                 {
@@ -772,8 +772,8 @@ real            : T_REALNUM
 type_id         : id
                 {
                     // Make sure this id is really declared as a type.
-                    // debug() << "type_id -> id: "
-                    //       << sym_tab->get_symbol($1->sym_p) << endl;
+                    debug() << "type_id -> id: "
+                          << sym_tab->get_symbol($1->sym_p) << endl;
                     if(sym_tab->get_symbol_tag($1->sym_p) != SYM_NAMETYPE) {
                         type_error($1->pos) << "not declared "
                                             << "as type: "
