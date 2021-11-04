@@ -573,7 +573,7 @@ lvariable       : lvar_id
 
 rvariable       : rvar_id
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | array_id T_LEFTBRACKET expr T_RIGHTBRACKET
                 {
