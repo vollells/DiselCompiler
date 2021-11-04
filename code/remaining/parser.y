@@ -614,22 +614,22 @@ else_part       : T_ELSE stmt_list
 
 opt_expr_list   : expr_list
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
 
 expr_list       : expr
                 {
-                    /* Your code here */
+                    $$ = new ast_expr_list(POS(@1), $1);
                 }
                 | expr_list T_COMMA expr
                 {
-                    /* Your code here */
+                    $$ = new ast_expr_list(POS(@3), $3, $1);
                 }
                 ;
 
@@ -640,19 +640,19 @@ expr            : simple_expr
                 }
                 | expr T_EQ simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_equal(POS(@2), $1, $3);
                 }
                 | expr T_NOTEQ simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_notequal(POS(@2), $1, $3);
                 }
                 | expr T_LESSTHAN simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_lessthan(POS(@2), $1, $3);
                 }
                 | expr T_GREATERTHAN simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_greaterthan(POS(@2), $1, $3);
                 }
                 ;
 
@@ -663,23 +663,23 @@ simple_expr     : term
                 }
                 | T_ADD term
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | T_SUB term
                 {
-                    /* Your code here */
+                    $$ = new ast_uminus(POS(@1), $2);
                 }
                 | simple_expr T_OR term
                 {
-                    /* Your code here */
+                    $$ = new ast_or(POS(@2), $1, $3);
                 }
                 | simple_expr T_ADD term
                 {
-                    /* Your code here */
+                    $$ = new ast_add(POS(@2), $1, $3);
                 }
                 | simple_expr T_SUB term
                 {
-                    /* Your code here */
+                    $$ = new ast_sub(POS(@2), $1, $3);
                 }
                 ;
 
@@ -690,23 +690,23 @@ term            : factor
                 }
                 | term T_AND factor
                 {
-                    /* Your code here */
+                    $$ = new ast_and(POS(@2), $1, $3);
                 }
                 | term T_MUL factor
                 {
-                    /* Your code here */
+                    $$ = new ast_mult(POS(@2), $1, $3);
                 }
                 | term T_RDIV factor
                 {
-                    /* Your code here */
+                    $$ = new ast_divide(POS(@2), $1, $3);
                 }
                 | term T_IDIV factor
                 {
-                    /* Your code here */
+                    $$ = new ast_idiv(POS(@2), $1, $3);
                 }
                 | term T_MOD factor
                 {
-                    /* Your code here */
+                    $$ = new ast_mod(POS(@2), $1, $3);
                 }
                 ;
 
@@ -729,11 +729,11 @@ factor          : rvariable
                 }
                 | T_NOT factor
                 {
-                    /* Your code here */
+                    $$ = new ast_not(POS(@1), $2);
                 }
                 | T_LEFTPAR expr T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
 
                 ;
