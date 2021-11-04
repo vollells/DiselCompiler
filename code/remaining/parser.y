@@ -530,15 +530,15 @@ stmt_list       : stmt
 
 stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 {
-                    /* Your code here */
+                    $$ = new ast_if(POS(@1), $2, $4, $5, $6);
                 }
                 | T_WHILE expr T_DO stmt_list T_END
                 {
-                    /* Your code here */
+                    $$ = new ast_while(POS(@1), $2, $4);
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = new ast_procedurecall(POS(@2), $1, $3);
                 }
                 | lvariable T_ASSIGN expr
                 {
@@ -546,16 +546,16 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 }
                 | T_RETURN expr
                 {
-                    /* Your code here */
+                    $$ = new ast_return(POS(@1), $2);
                 }
                 | T_RETURN
                 {
-                    /* Your code here */
+                    $$ = new ast_return(POS(@1), NULL);
                 }
 
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
@@ -582,7 +582,7 @@ rvariable       : rvar_id
                 }
                 | array_id T_LEFTBRACKET expr T_RIGHTBRACKET
                 {
-                    /* Your code here */
+                    $$ = new ast_indexed(POS(@2), $1, $3);
                 }
 
                 ;
@@ -590,29 +590,29 @@ rvariable       : rvar_id
 
 elsif_list      : elsif_list elsif
                 {
-                    /* Your code here */
+                    $$ = new ast_elsif_list(POS(@2), $2, $1);
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
 
 elsif           : T_ELSIF expr T_THEN stmt_list
                 {
-                    /* Your code here */
+                    $$ = new ast_elsif(POS(@1), $2, $4);
                 }
                 ;
 
 
 else_part       : T_ELSE stmt_list
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
