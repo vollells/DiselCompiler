@@ -201,11 +201,11 @@ const_decls     : const_decl
 
 const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_constant(POS(@1), $1, integer_type, $3->value);
                 }
                 | T_IDENT T_EQ real T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_constant(POS(@1), $1, real_type, $3->value);
                 }
                 | T_IDENT T_EQ T_STRINGCONST T_SEMICOLON
                 {
@@ -219,7 +219,12 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     // constant foo = 5;
                     // constant bar = foo;
                     // ...now, why would anyone want to do that?
-                    /* Your code here */
+
+                    fatal("Failed to implement constant thingy");
+                    auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
+                    sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
+                    auto *new_constant = sym_tab->get_symbol($1)->get_constant_symbol();
+                    new_constant->const_value = constant->const_value;
                 }
 
                 ;
