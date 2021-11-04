@@ -179,7 +179,7 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    /* Your code here */
+                    $$ = new ast_procedurehead(,$2);
                     sym_tab->open_scope();
                 }
                 ;
