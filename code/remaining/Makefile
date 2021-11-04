@@ -43,23 +43,23 @@ clean :
 	touch $(DPFILE)
 
 lab3: all
-	- ./diesel -a -b -c -f -p ../testpgm/parstest1.d 2>&1 | diff -ub ../trace/parstest1.trace -
-	- ./diesel -a -b -c -f -p ../testpgm/parstest2.d 2>&1 | diff -ub ../trace/parstest2.trace -
-	- ./diesel -a -b -c -f -p ../testpgm/parstest3.d 2>&1 | diff -ub ../trace/parstest3.trace -
+	- ./diesel -a -b -c -f -p ../testpgm/parstest1.d 2>&1 | diff --color=always -ub ../trace/parstest1.trace -
+	- ./diesel -a -b -c -f -p ../testpgm/parstest2.d 2>&1 | diff --color=always -ub ../trace/parstest2.trace -
+	- ./diesel -a -b -c -f -p ../testpgm/parstest3.d 2>&1 | diff --color=always -ub ../trace/parstest3.trace -
 
 lab4: all
-	- ./diesel -a -b -f -p -y ../testpgm/semtest1.d 2>&1 | diff -ub ../trace/semtest1.trace -
-	- ./diesel -f ../testpgm/semtest2.d 2>&1 | diff -ub ../trace/semtest2.trace -
+	- ./diesel -a -b -f -p -y ../testpgm/semtest1.d 2>&1 | diff --color=always -ub ../trace/semtest1.trace -
+	- ./diesel -f ../testpgm/semtest2.d 2>&1 | diff --color=always -ub ../trace/semtest2.trace -
 
 lab5: all
-	- ./diesel -a -b -p ../testpgm/opttest1.d 2>&1 | diff -ub ../trace/opttest1.trace -
+	- ./diesel -a -b -p ../testpgm/opttest1.d 2>&1 | diff --color=always -ub ../trace/opttest1.trace -
 
 lab6: all
-	- ./diesel -b -q -y ../testpgm/quadtest1.d 2>&1 | diff -ub ../trace/quadtest1.trace -
+	- ./diesel -b -q -y ../testpgm/quadtest1.d 2>&1 | diff --color=always -ub ../trace/quadtest1.trace -
 
 lab7: all
-	- ./diesel -y ../testpgm/codetest1.d 2>&1 | diff -ub ../trace/codetest1.trace -
-	diff -ub ../trace/codetest1.dout d.out
+	- ./diesel -y ../testpgm/codetest1.d 2>&1 | diff --color=always -ub ../trace/codetest1.trace -
+	diff --color=always -ub ../trace/codetest1.dout d.out
 $(DPFILE) depend : $(BASESRC) $(HEADERS) $(SOURCES)
 	$(CC) $(DPFLAGS) $(CFLAGS) $(BASESRC) > $(DPFILE)
 
