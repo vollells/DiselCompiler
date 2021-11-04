@@ -11,14 +11,20 @@ var
     i : integer;
     p : array[2] of integer;
 
+
+procedure empty();
+begin
+end;
+
+
 begin
     i := (i + 1) / 2 * 3 mod 4;
-    // f();
     if a then
-        i := a;
+        i := 1;
     elsif a then
         i := b;
     else
         i := i;
     end
+    empty();
 end.

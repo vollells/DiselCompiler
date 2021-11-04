@@ -888,8 +888,8 @@ id              : T_IDENT
 
                     // Make sure the symbol was declared before it is used.
                     sym_p = sym_tab->lookup_symbol($1);
-                    // debug() << "id -> T_IDENT: " << sym_p << " "
-                    //            << sym_tab->pool_lookup($1) << endl;
+                    /* debug() << "id -> T_IDENT: " << sym_p << " " */
+                    /*            << sym_tab->pool_lookup($1) << endl; */
                     if (sym_p == NULL_SYM) {
                         type_error(pos) << "not declared: "
                                         << yytext << endl << flush;
