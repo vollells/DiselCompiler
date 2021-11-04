@@ -772,8 +772,8 @@ real            : T_REALNUM
 type_id         : id
                 {
                     // Make sure this id is really declared as a type.
-                    debug() << "type_id -> id: "
-                          << sym_tab->get_symbol($1->sym_p) << endl;
+                    // debug() << "type_id -> id: "
+                    //       << sym_tab->get_symbol($1->sym_p) << endl;
                     if(sym_tab->get_symbol_tag($1->sym_p) != SYM_NAMETYPE) {
                         type_error($1->pos) << "not declared "
                                             << "as type: "
