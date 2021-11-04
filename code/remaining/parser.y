@@ -220,6 +220,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     // constant bar = foo;
                     // ...now, why would anyone want to do that?
 
+                    // TODO(ed): This is just plain bad?
                     fatal("Failed to implement constant thingy");
                     auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
                     sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
@@ -519,6 +520,7 @@ comp_stmt       : T_BEGIN stmt_list T_END
 
 stmt_list       : stmt
                 {
+                    // TODO(ed): Something is wrong here - the syntax tree is too complex?
                     $$ = new ast_stmt_list(POS(@1), $1);
                 }
                 | stmt_list T_SEMICOLON stmt
