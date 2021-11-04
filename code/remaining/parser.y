@@ -241,7 +241,11 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* Your code here */
+                    position_information *pos = POS(@1);
+                    sym_tab->enter_array(pos,
+                                         $1,
+                                         $8->sym_p,
+                                         $5->get_ast_integer()->value);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
