@@ -218,7 +218,7 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     // ...now, why would anyone want to do that?
                     /* Your code here */
                 }
-                
+
                 ;
 
 
@@ -288,7 +288,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                         }
                     }
                 }
-                
+
                 ;
 
 
@@ -543,7 +543,7 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 {
                     /* Your code here */
                 }
-                
+
                 | /* empty */
                 {
                     /* Your code here */
@@ -575,7 +575,7 @@ rvariable       : rvar_id
                 {
                     /* Your code here */
                 }
-                
+
                 ;
 
 
@@ -731,7 +731,7 @@ factor          : rvariable
                 {
                     /* Your code here */
                 }
-                
+
                 ;
 
 
@@ -739,7 +739,7 @@ func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
                     /* Your code here */
                 }
-                
+
                 ;
 
 
