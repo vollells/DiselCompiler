@@ -37,6 +37,8 @@ extern bool assembler;
 
 #define YYDEBUG 1
 
+#define POS(X) new position_information(X.first_line, X.first_column)
+
 /* Have this defined to give better error messages. Using it causes
    some bison warnings at compiler compile time, however. Use as you
    wish. Not mandatory. */
@@ -245,9 +247,7 @@ var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                     // We enter an array: pool_pointer, type pointer,
                     // the id type of the constant, and the value of the
                     // constant.
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
 
                     // Ideally we should be able to just enter the array and
                     // defer index type checking to the semantic phase.
