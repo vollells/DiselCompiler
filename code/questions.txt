@@ -1,0 +1,8 @@
+# Questions
+Lab1:
+(Lex felt old)
+
+Lab2:
+The structure of the symtable feels dumb, it's overly complicated for what I can see is no actual gain. Is parsing speed really this important?
+
+Lab3:
