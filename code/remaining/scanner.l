@@ -178,7 +178,7 @@ procedure   { SPAN(); return T_PROCEDURE; }
 '([^'\n]*('')?)*['\n] {
     SPAN();
     bool valid = true;
-    for (size_t i = 0; i < yyleng; i++) {
+    for (ssize_t i = 0; i < yyleng; i++) {
         char c = yytext[i];
         if (c == '\n') {
             column = 0;

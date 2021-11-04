@@ -500,13 +500,27 @@ sym_index symbol_table::current_environment() {
 
 /* Increase the current_level by one. */
 void symbol_table::open_scope() {
-    /* Your code here */
+    current_level++;
+    block_table[current_level] = sym_pos;
+    if (current_level > MAX_BLOCK) {
+        fatal("Opening too many block! 8 is max");
+    }
 }
 
 /* Decrease the current_level by one. Return sym_index to new environment. */
 sym_index symbol_table::close_scope() {
-    /* Your code here */
-    return NULL_SYM;
+    if (!current_level) {
+        fatal("Cannot close the global scope");
+    }
+    auto new_level = block_table[current_level];
+    current_level--;
+
+    for (auto i = sym_pos; i >= new_level; i--) {
+        symbol *current_symbol = sym_table[i];
+        hash_table[current_symbol->back_link] = current_symbol->hash_link;
+        current_symbol->hash_link = -1;
+    }
+    return new_level;
 }
 
 /*** Main symbol table methods. ***/
@@ -515,7 +529,16 @@ sym_index symbol_table::close_scope() {
    a string_pool index. Starts searching in the current block level and
    follows hash links outwards. */
 sym_index symbol_table::lookup_symbol(const pool_index pool_p) {
-    /* Your code here */
+    hash_index hash_i = hash(pool_p);
+
+    sym_index entry = hash_table[hash_i];
+    while (entry != NULL_SYM) {
+        symbol *sym_entry = sym_table[entry];
+        if (pool_compare(sym_entry->id, pool_p)) {
+            return entry;
+        }
+        entry = sym_entry->hash_link;
+    }
     return NULL_SYM;
 }
 
@@ -590,11 +613,40 @@ void symbol_table::set_symbol_type(const sym_index sym_p,
    for the type definition of sym_type.
    Remember that the attribute 'tag' and 'id' will be set when creating
    a new symbol inside the symbol constructor (take a look at symbol.cc).*/
-
 sym_index symbol_table::install_symbol(const pool_index pool_p,
                                        const sym_type tag) {
-    /* Your code here */
-    return 0; // Return index to the symbol we just created.
+    auto guess = lookup_symbol(pool_p);
+    if (guess != NULL_SYM && sym_table[guess]->level == current_level) {
+        return guess;
+    }
+
+    hash_index hash_i = hash(pool_p);
+
+    sym_index old_entry = hash_table[hash_i];
+    sym_pos++;
+    hash_table[hash_i] = sym_pos;
+
+    symbol *new_sym_entry = nullptr;
+
+    switch (tag) {
+    case SYM_ARRAY: new_sym_entry = new array_symbol(pool_p); break;
+    case SYM_FUNC: new_sym_entry = new function_symbol(pool_p); break;
+    case SYM_PROC: new_sym_entry = new procedure_symbol(pool_p); break;
+    case SYM_VAR: new_sym_entry = new variable_symbol(pool_p); break;
+    case SYM_PARAM: new_sym_entry = new parameter_symbol(pool_p); break;
+    case SYM_CONST: new_sym_entry = new constant_symbol(pool_p); break;
+    case SYM_NAMETYPE: new_sym_entry = new nametype_symbol(pool_p); break;
+    case SYM_UNDEF: fatal("Cannot Create symbol of type UNDEF"); break;
+    }
+
+    sym_table[sym_pos] = new_sym_entry;
+    new_sym_entry->back_link = hash_i;
+    new_sym_entry->hash_link = old_entry;
+    new_sym_entry->id = pool_p; // Is this right?
+    // new_sym_entry->tag = tag;
+    new_sym_entry->level = current_level;
+
+    return sym_pos;
 }
 
 /* Enter a constant into the symbol table. The value is an integer. The type
@@ -817,6 +869,7 @@ sym_index symbol_table::enter_function(position_information *pos,
     func->ar_size = 0;
     func->label_nr = get_next_label();
 
+    // WTF? @CourseStaff - you don't need to rewrite a pointer...
     sym_table[sym_p] = func;
 
     return sym_p;
@@ -825,8 +878,23 @@ sym_index symbol_table::enter_function(position_information *pos,
 /* Enter a procedure_symbol into the symbol table. */
 sym_index symbol_table::enter_procedure(position_information *pos,
                                         const pool_index pool_p) {
-    /* Your code here */
-    return NULL_SYM;
+    sym_index sym_p = install_symbol(pool_p, SYM_PROC);
+    procedure_symbol *proc = sym_table[sym_p]->get_procedure_symbol();
+
+    if (proc->tag != SYM_UNDEF) {
+        type_error(pos) << "Redeclaration: " << proc << endl;
+        return sym_p; // returns the original symbol
+    }
+
+    // :(
+    proc->tag = SYM_PROC;
+    proc->last_parameter = NULL;
+
+    proc->ar_size = 0;
+    proc->label_nr = get_next_label();
+    proc->type = void_type;
+
+    return sym_p;
 }
 
 /* Enter a parameter into the symbol table. */
