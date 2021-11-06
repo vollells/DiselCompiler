@@ -216,15 +216,14 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
 
                     // This part of code is a bit ugly, but it's needed to
                     // allow constructions like this:
-                    // constant foo = 5;
-                    // constant bar = foo;
+                    // const   
+                    //      foo = 5;
+                    //      bar = foo;
                     // ...now, why would anyone want to do that?
 
-                    // TODO(ed): This is just plain bad?
-                    fatal("Failed to implement constant thingy");
                     auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
-                    sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
-                    auto *new_constant = sym_tab->get_symbol($1)->get_constant_symbol();
+                    auto symbol = sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
+                    auto *new_constant = sym_tab->get_symbol(symbol)->get_constant_symbol();
                     new_constant->const_value = constant->const_value;
                 }
 
