@@ -520,12 +520,23 @@ comp_stmt       : T_BEGIN stmt_list T_END
 
 stmt_list       : stmt
                 {
-                    // TODO(ed): Something is wrong here - the syntax tree is too complex?
-                    $$ = new ast_stmt_list(POS(@1), $1);
+                    if ($1) {
+                        $$ = new ast_stmt_list(POS(@1), $1);
+                    } else {
+                        $$ = NULL;
+                    }
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
-                    $$ = new ast_stmt_list(POS(@3), $3, $1);
+                    if ($3 && $1) {
+                        $$ = new ast_stmt_list(POS(@3), $3, $1);
+                    } else if ($3) {
+                        $$ = new ast_stmt_list(POS(@3), $3);
+                    } else if ($1) {
+                        $$ = $1;
+                    } else {
+                        $$ = NULL;
+                    }
                 }
                 ;
 
