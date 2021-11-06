@@ -420,6 +420,7 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
+                    sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
                     $$ = $1;
                 }
                 ;
@@ -446,12 +447,10 @@ proc_head       : T_PROCEDURE T_IDENT
 
 func_head       : T_FUNCTION T_IDENT
                 {
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
+
                     // We add the function id to the symbol table.
-                    sym_index func_loc = sym_tab->enter_function(pos,
-                                                                 $2);
+                    sym_index func_loc = sym_tab->enter_function(pos, $2);
                     // Open a new scope.
                     sym_tab->open_scope();
 
@@ -460,8 +459,7 @@ func_head       : T_FUNCTION T_IDENT
                     // index for the function to the func_decl production
                     // above. We need it to be able to set the return type
                     // and also later on for code generation.
-                    $$ = new ast_functionhead(pos,
-                                              func_loc);
+                    $$ = new ast_functionhead(pos, func_loc);
                 }
                 ;
 
