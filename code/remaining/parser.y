@@ -37,6 +37,8 @@ extern bool assembler;
 
 #define YYDEBUG 1
 
+#define POS(X) new position_information(X.first_line, X.first_column)
+
 /* Have this defined to give better error messages. Using it causes
    some bison warnings at compiler compile time, however. Use as you
    wish. Not mandatory. */
@@ -179,8 +181,9 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    /* Your code here */
+                    sym_tab->enter_procedure(POS(@2), $2);
                     sym_tab->open_scope();
+                    $$ = new ast_procedurehead(POS(@2), $2);
                 }
                 ;
 
@@ -198,11 +201,11 @@ const_decls     : const_decl
 
 const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_constant(POS(@1), $1, integer_type, $3->value);
                 }
                 | T_IDENT T_EQ real T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_constant(POS(@1), $1, real_type, $3->value);
                 }
                 | T_IDENT T_EQ T_STRINGCONST T_SEMICOLON
                 {
@@ -213,12 +216,24 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
 
                     // This part of code is a bit ugly, but it's needed to
                     // allow constructions like this:
-                    // constant foo = 5;
-                    // constant bar = foo;
+                    // const   
+                    //      foo = 5;
+                    //      bar = foo;
                     // ...now, why would anyone want to do that?
-                    /* Your code here */
-                }
 
+                    if ($3->sym_p == -1) {
+                        error(POS(@3)) << "Constant does not exist " << yytext << endl;
+                    }else{
+                        auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
+                        auto symbol = sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
+                        auto *new_constant = sym_tab->get_symbol(symbol)->get_constant_symbol();
+                        new_constant->const_value = constant->const_value;
+                    }
+                }
+                | error T_SEMICOLON
+                {
+                    error(POS(@1)) << "Not valid constant " << yytext << endl;
+                }
                 ;
 
 
@@ -234,20 +249,22 @@ var_decls       : var_decl
 
 var_decl        : T_IDENT T_COLON type_id T_SEMICOLON
                 {
-                    /* Your code here */
+                    sym_tab->enter_variable(POS(@1), $1, $3->sym_p);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET integer T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
-                    /* Your code here */
+                    position_information *pos = POS(@1);
+                    sym_tab->enter_array(pos,
+                                         $1,
+                                         $8->sym_p,
+                                         $5->get_ast_integer()->value);
                 }
                 | T_IDENT T_COLON T_ARRAY T_LEFTBRACKET const_id T_RIGHTBRACKET T_OF type_id T_SEMICOLON
                 {
                     // We enter an array: pool_pointer, type pointer,
                     // the id type of the constant, and the value of the
                     // constant.
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
 
                     // Ideally we should be able to just enter the array and
                     // defer index type checking to the semantic phase.
@@ -410,16 +427,16 @@ proc_decl       : proc_head opt_param_list T_SEMICOLON const_part variable_part
 
 func_decl       : func_head opt_param_list T_COLON type_id T_SEMICOLON const_part variable_part
                 {
-                    /* Your code here */
+                    sym_tab->set_symbol_type($1->sym_p, $4->sym_p);
+                    $$ = $1;
                 }
                 ;
 
 
 proc_head       : T_PROCEDURE T_IDENT
                 {
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
+
                     // We add the function id to the symbol table.
                     sym_index proc_loc = sym_tab->enter_procedure(pos,
                                                                   $2);
@@ -437,12 +454,10 @@ proc_head       : T_PROCEDURE T_IDENT
 
 func_head       : T_FUNCTION T_IDENT
                 {
-                    position_information *pos =
-                        new position_information(@1.first_line,
-                                                 @1.first_column);
+                    position_information *pos = POS(@1);
+
                     // We add the function id to the symbol table.
-                    sym_index func_loc = sym_tab->enter_function(pos,
-                                                                 $2);
+                    sym_index func_loc = sym_tab->enter_function(pos, $2);
                     // Open a new scope.
                     sym_tab->open_scope();
 
@@ -451,23 +466,23 @@ func_head       : T_FUNCTION T_IDENT
                     // index for the function to the func_decl production
                     // above. We need it to be able to set the return type
                     // and also later on for code generation.
-                    $$ = new ast_functionhead(pos,
-                                              func_loc);
+                    $$ = new ast_functionhead(pos, func_loc);
                 }
                 ;
 
 
 opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
+                    error(POS(@2)) << "Invalid parameter list " << endl;
                     $$ = NULL;
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
@@ -503,50 +518,68 @@ param           : T_IDENT T_COLON type_id
 
 comp_stmt       : T_BEGIN stmt_list T_END
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 ;
 
 
 stmt_list       : stmt
                 {
-                    /* Your code here */
+                    if ($1) {
+                        $$ = new ast_stmt_list(POS(@1), $1);
+                    } else {
+                        $$ = NULL;
+                    }
                 }
                 | stmt_list T_SEMICOLON stmt
                 {
-                    /* Your code here */
+                    if ($3 && $1) {
+                        $$ = new ast_stmt_list(POS(@3), $3, $1);
+                    } else if ($3) {
+                        $$ = new ast_stmt_list(POS(@3), $3);
+                    } else if ($1) {
+                        $$ = $1;
+                    } else {
+                        $$ = NULL;
+                    }
                 }
                 ;
 
 
 stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                 {
-                    /* Your code here */
+                    $$ = new ast_if(POS(@1), $2, $4, $5, $6);
                 }
                 | T_WHILE expr T_DO stmt_list T_END
                 {
-                    /* Your code here */
+                    $$ = new ast_while(POS(@1), $2, $4);
                 }
                 | proc_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = new ast_procedurecall(POS(@2), $1, $3);
                 }
                 | lvariable T_ASSIGN expr
                 {
-                    /* Your code here */
+                    $$ = new ast_assign(POS(@2), $1, $3);
                 }
                 | T_RETURN expr
                 {
-                    /* Your code here */
+                    $$ = new ast_return(POS(@1), $2);
                 }
                 | T_RETURN
                 {
-                    /* Your code here */
+                    $$ = new ast_return(POS(@1), NULL);
+                }
+
+                | error
+                {
+                    error(POS(@1)) << "Invalid Statement " << yytext << endl;
+                    $$ = NULL;
                 }
 
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
@@ -569,140 +602,143 @@ lvariable       : lvar_id
 
 rvariable       : rvar_id
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | array_id T_LEFTBRACKET expr T_RIGHTBRACKET
                 {
-                    /* Your code here */
+                    $$ = new ast_indexed(POS(@2), $1, $3);
                 }
-
+                | error
+                {
+                    $$ = NULL;
+                }
                 ;
 
 
 elsif_list      : elsif_list elsif
                 {
-                    /* Your code here */
+                    $$ = new ast_elsif_list(POS(@2), $2, $1);
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
 
 elsif           : T_ELSIF expr T_THEN stmt_list
                 {
-                    /* Your code here */
+                    $$ = new ast_elsif(POS(@1), $2, $4);
                 }
                 ;
 
 
 else_part       : T_ELSE stmt_list
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
 
 opt_expr_list   : expr_list
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | /* empty */
                 {
-                    /* Your code here */
+                    $$ = NULL;
                 }
                 ;
 
 
 expr_list       : expr
                 {
-                    /* Your code here */
+                    $$ = new ast_expr_list(POS(@1), $1);
                 }
                 | expr_list T_COMMA expr
                 {
-                    /* Your code here */
+                    $$ = new ast_expr_list(POS(@3), $3, $1);
                 }
                 ;
 
 
 expr            : simple_expr
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | expr T_EQ simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_equal(POS(@2), $1, $3);
                 }
                 | expr T_NOTEQ simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_notequal(POS(@2), $1, $3);
                 }
                 | expr T_LESSTHAN simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_lessthan(POS(@2), $1, $3);
                 }
                 | expr T_GREATERTHAN simple_expr
                 {
-                    /* Your code here */
+                    $$ = new ast_greaterthan(POS(@2), $1, $3);
                 }
                 ;
 
 
 simple_expr     : term
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | T_ADD term
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
                 | T_SUB term
                 {
-                    /* Your code here */
+                    $$ = new ast_uminus(POS(@1), $2);
                 }
                 | simple_expr T_OR term
                 {
-                    /* Your code here */
+                    $$ = new ast_or(POS(@2), $1, $3);
                 }
                 | simple_expr T_ADD term
                 {
-                    /* Your code here */
+                    $$ = new ast_add(POS(@2), $1, $3);
                 }
                 | simple_expr T_SUB term
                 {
-                    /* Your code here */
+                    $$ = new ast_sub(POS(@2), $1, $3);
                 }
                 ;
 
 
 term            : factor
                 {
-                    /* Your code here */
+                    $$ = $1;
                 }
                 | term T_AND factor
                 {
-                    /* Your code here */
+                    $$ = new ast_and(POS(@2), $1, $3);
                 }
                 | term T_MUL factor
                 {
-                    /* Your code here */
+                    $$ = new ast_mult(POS(@2), $1, $3);
                 }
                 | term T_RDIV factor
                 {
-                    /* Your code here */
+                    $$ = new ast_divide(POS(@2), $1, $3);
                 }
                 | term T_IDIV factor
                 {
-                    /* Your code here */
+                    $$ = new ast_idiv(POS(@2), $1, $3);
                 }
                 | term T_MOD factor
                 {
-                    /* Your code here */
+                    $$ = new ast_mod(POS(@2), $1, $3);
                 }
                 ;
 
@@ -725,11 +761,11 @@ factor          : rvariable
                 }
                 | T_NOT factor
                 {
-                    /* Your code here */
+                    $$ = new ast_not(POS(@1), $2);
                 }
                 | T_LEFTPAR expr T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = $2;
                 }
 
                 ;
@@ -737,7 +773,7 @@ factor          : rvariable
 
 func_call       : func_id T_LEFTPAR opt_expr_list T_RIGHTPAR
                 {
-                    /* Your code here */
+                    $$ = new ast_functioncall(POS(@2), $1, $3);
                 }
 
                 ;
@@ -879,8 +915,8 @@ id              : T_IDENT
 
                     // Make sure the symbol was declared before it is used.
                     sym_p = sym_tab->lookup_symbol($1);
-                    // debug() << "id -> T_IDENT: " << sym_p << " "
-                    //            << sym_tab->pool_lookup($1) << endl;
+                    /* debug() << "id -> T_IDENT: " << sym_p << " " */
+                    /*            << sym_tab->pool_lookup($1) << endl; */
                     if (sym_p == NULL_SYM) {
                         type_error(pos) << "not declared: "
                                         << yytext << endl << flush;

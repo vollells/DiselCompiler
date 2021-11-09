@@ -515,7 +515,7 @@ sym_index symbol_table::close_scope() {
     auto new_level = block_table[current_level];
     current_level--;
 
-    for (auto i = sym_pos; i >= new_level; i--) {
+    for (auto i = sym_pos; i > new_level; i--) {
         symbol *current_symbol = sym_table[i];
         hash_table[current_symbol->back_link] = current_symbol->hash_link;
         current_symbol->hash_link = -1;
