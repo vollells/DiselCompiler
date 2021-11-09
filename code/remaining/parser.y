@@ -221,12 +221,19 @@ const_decl      : T_IDENT T_EQ integer T_SEMICOLON
                     //      bar = foo;
                     // ...now, why would anyone want to do that?
 
-                    auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
-                    auto symbol = sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
-                    auto *new_constant = sym_tab->get_symbol(symbol)->get_constant_symbol();
-                    new_constant->const_value = constant->const_value;
+                    if ($3->sym_p == -1) {
+                        error(POS(@3)) << "Constant does not exist " << yytext << endl;
+                    }else{
+                        auto *constant = sym_tab->get_symbol($3->sym_p)->get_constant_symbol();
+                        auto symbol = sym_tab->enter_constant(POS(@1), $1, constant->type, 0.0);
+                        auto *new_constant = sym_tab->get_symbol(symbol)->get_constant_symbol();
+                        new_constant->const_value = constant->const_value;
+                    }
                 }
-
+                | error T_SEMICOLON
+                {
+                    error(POS(@1)) << "Not valid constant " << yytext << endl;
+                }
                 ;
 
 
@@ -470,6 +477,7 @@ opt_param_list  : T_LEFTPAR param_list T_RIGHTPAR
                 }
                 | T_LEFTPAR error T_RIGHTPAR
                 {
+                    error(POS(@2)) << "Invalid parameter list " << endl;
                     $$ = NULL;
                 }
                 | /* empty */
@@ -563,6 +571,12 @@ stmt            : T_IF expr T_THEN stmt_list elsif_list else_part T_END
                     $$ = new ast_return(POS(@1), NULL);
                 }
 
+                | error
+                {
+                    error(POS(@1)) << "Invalid Statement " << yytext << endl;
+                    $$ = NULL;
+                }
+
                 | /* empty */
                 {
                     $$ = NULL;
@@ -594,7 +608,10 @@ rvariable       : rvar_id
                 {
                     $$ = new ast_indexed(POS(@2), $1, $3);
                 }
-
+                | error
+                {
+                    $$ = NULL;
+                }
                 ;
 
 
