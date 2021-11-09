@@ -36,14 +36,31 @@ void semantic::do_typecheck(symbol *env, ast_stmt_list *body) {
 bool semantic::chk_param(ast_id *env,
                          parameter_symbol *formals,
                          ast_expr_list *actuals) {
-    /* Your code here */
+    if (formals && actuals) {
+        if (formals->type == actuals->last_expr->type_check()) {
+            chk_param(env, formals->preceding, actuals->preceding);
+        }else{
+            type_error(actuals->pos) << "Types not matching" << endl;
+        }
+    }else if (!formals && !actuals) {
+    }else{
+        type_error(env->pos) << "Mismatched arity" << endl;
+    }
+
     return true;
 }
 
 /* Check formal vs. actual parameters at procedure/function calls. */
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list) {
-    /* Your code here */
+    symbol *new_symbol = sym_tab->get_symbol(call_id->sym_p);
+    if (new_symbol->tag == SYM_FUNC){
+        chk_param(call_id, new_symbol->get_function_symbol()->last_parameter, param_list);
+    } else if (new_symbol->tag == SYM_PROC) {
+        chk_param(call_id, new_symbol->get_procedure_symbol()->last_parameter, param_list);
+    }else{
+        type_error(call_id->pos) << "Can only call func or proc" << endl;
+    };
 }
 
 /* We overload this method for the various ast_node subclasses that can
