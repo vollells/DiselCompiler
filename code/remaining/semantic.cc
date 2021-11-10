@@ -136,31 +136,34 @@ sym_index ast_indexed::type_check() {
 /* This convenience function is used to type check all binary operations
    in which implicit casting of integer to real is done: plus, minus,
    multiplication. We synthesize type information as well. */
-sym_index semantic::check_binop1(ast_binaryoperation *node) {
-    /* Your code here */
-    return void_type; // You don't have to use this method but it might be convenient
+sym_index check_binop1(ast_binaryoperation *node, string op) {
+    // TODO(ed): Do some casting?
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left == right) {
+        return left;
+    } else {
+        type_error(node->pos) << "Type mismatch in binary operator (" << op << ")" << endl;
+        return void_type;
+    }
 }
 
 sym_index ast_add::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop1(this, "+");
 }
 
 sym_index ast_sub::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop1(this, "-");
 }
 
 sym_index ast_mult::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop1(this, "*");
 }
 
 /* Divide is a special case, since it always returns real. We make sure the
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop1(this, "/");
 }
 
 /* This convenience method is used to type check all binary operations
