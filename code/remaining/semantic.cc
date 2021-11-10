@@ -115,7 +115,10 @@ sym_index ast_expr_list::type_check() {
 
 /* Type check an elsif list. */
 sym_index ast_elsif_list::type_check() {
-    /* Your code here */
+    if (preceding != NULL && preceding->type_check() != void_type) {
+        type_error(preceding->pos) << "Not an elsif node or null in preceding" << endl;
+    }
+    last_elsif->type_check();
     return void_type;
 }
 
@@ -280,7 +283,18 @@ sym_index ast_while::type_check() {
 }
 
 sym_index ast_if::type_check() {
-    /* Your code here */
+    if (condition->type_check() != integer_type) {
+        type_error(condition->pos) << "Not an integer vaule in if" << endl;
+    }
+    body->last_stmt->type_check();
+    if (elsif_list != NULL) {
+        elsif_list->type_check();
+    }
+    if (else_body != NULL) {
+        else_body->type_check();
+    }
+
+
     return void_type;
 }
 
@@ -332,17 +346,26 @@ sym_index ast_functioncall::type_check() {
 }
 
 sym_index ast_uminus::type_check() {
-    /* Your code here */
-    return void_type;
+    auto node_type = expr->type_check();
+    if (node_type != integer_type && node_type != real_type) {
+        type_error(expr->pos) << "Not an integer or real in uminus" << endl;
+        return void_type;
+    }
+    return node_type;
 }
 
 sym_index ast_not::type_check() {
-    /* Your code here */
-    return void_type;
+    if (expr->type_check() != integer_type) {
+        type_error(expr->pos) << "Not an integer in a boolean not" << endl;
+    }
+    return integer_type;
 }
 
 sym_index ast_elsif::type_check() {
-    /* Your code here */
+    if (condition->type_check() != integer_type) {
+        type_error(condition->pos) << "Not an integer vaule in if" << endl;
+    }
+    body->type_check();
     return void_type;
 }
 

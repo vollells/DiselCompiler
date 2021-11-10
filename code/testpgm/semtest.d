@@ -5,5 +5,14 @@ begin
 end;
 
 begin
-down(1.0 <> 0.0);
+  if 0 then
+     down();
+  elsif 1>0 then
+     down();
+  elsif 1>0 then
+     down();
+  else
+     down();
+  end;
+
 end.
