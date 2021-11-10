@@ -159,18 +159,22 @@ sym_index check_binop_with_cast(ast_binaryoperation *node, string op) {
     if (right != integer_type && right != real_type) {
         type_error(node->right->pos) << "Right operand is not a number-type (" << op << ")" << endl;
     }
+    auto ret = void_type;
     if (left == right) {
-        return left;
+        ret = left;
     } else if (left == integer_type) {
         node->left = new ast_cast(node->left->pos, node->left);
-        return real_type;
+        node->left->type = real_type;
+        ret = real_type;
     } else if (right == integer_type) {
         node->right = new ast_cast(node->right->pos, node->right);
-        return real_type;
+        node->right->type = real_type;
+        ret = real_type;
     } else {
         type_error(node->pos) << "Edvard's logic is fallable" << endl;
-        return void_type;
     }
+    node->type = ret;
+    return ret;
 }
 
 sym_index ast_add::type_check() {
@@ -204,7 +208,8 @@ sym_index ast_divide::type_check() {
     if (right == integer_type) {
         node->right = new ast_cast(node->right->pos, node->right);
     }
-    return real_type;
+    type = real_type;
+    return type;
 }
 
 /* This convenience method is used to type check all binary operations
@@ -222,7 +227,8 @@ sym_index check_binop_int(ast_binaryoperation *node, string op) {
     if (right != integer_type) {
         type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
     }
-    return integer_type;
+    node->type = integer_type;
+    return node->type;
 }
 
 sym_index ast_or::type_check() {
@@ -247,8 +253,10 @@ sym_index check_binrel(ast_binaryrelation *node, string op) {
     // Maybe question your inheritance here...
     auto dummy_node = new ast_add(node->pos, node->left, node->right);
     check_binop_with_cast(dummy_node, op);
-    delete dummy_node;
-    return integer_type;
+    node->left = dummy_node->left;
+    node->right = dummy_node->right;
+    node->type = integer_type;
+    return node->type;
 }
 
 sym_index ast_equal::type_check() {
@@ -277,7 +285,10 @@ sym_index ast_procedurecall::type_check() {
 sym_index ast_assign::type_check() {
     auto lhs_type = lhs->type_check();
     auto rhs_type = rhs->type_check();
-    if (lhs_type != rhs_type) {
+    if (lhs_type == real_type && rhs_type == integer_type) {
+        rhs = new ast_cast(pos, rhs);
+        rhs->type = real_type;
+    } else if (lhs_type != rhs_type) {
         type_error(pos) << "Cannot assign to different type" << endl;
     }
     return void_type;
@@ -357,19 +368,20 @@ sym_index ast_functioncall::type_check() {
 }
 
 sym_index ast_uminus::type_check() {
-    auto node_type = expr->type_check();
-    if (node_type != integer_type && node_type != real_type) {
+    type = expr->type_check();
+    if (type != integer_type && type != real_type) {
         type_error(expr->pos) << "Not an integer or real in uminus" << endl;
         return void_type;
     }
-    return node_type;
+    return type;
 }
 
 sym_index ast_not::type_check() {
     if (expr->type_check() != integer_type) {
         type_error(expr->pos) << "Not an integer in a boolean not" << endl;
     }
-    return integer_type;
+    type = integer_type;
+    return type;
 }
 
 sym_index ast_elsif::type_check() {
@@ -381,9 +393,11 @@ sym_index ast_elsif::type_check() {
 }
 
 sym_index ast_integer::type_check() {
+    type = integer_type;
     return integer_type;
 }
 
 sym_index ast_real::type_check() {
+    type = real_type;
     return real_type;
 }
