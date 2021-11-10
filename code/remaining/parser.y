@@ -181,9 +181,9 @@ prog_decl       : prog_head T_SEMICOLON const_part variable_part
 
 prog_head       : T_PROGRAM T_IDENT
                 {
-                    sym_tab->enter_procedure(POS(@2), $2);
+                    auto sym = sym_tab->enter_procedure(POS(@2), $2);
                     sym_tab->open_scope();
-                    $$ = new ast_procedurehead(POS(@2), $2);
+                    $$ = new ast_procedurehead(POS(@2), sym);
                 }
                 ;
 

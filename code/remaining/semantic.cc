@@ -39,26 +39,25 @@ bool semantic::chk_param(ast_id *env,
     if (formals && actuals) {
         if (formals->type == actuals->last_expr->type_check()) {
             chk_param(env, formals->preceding, actuals->preceding);
-        }else{
+        } else {
             type_error(actuals->pos) << "Types not matching" << endl;
         }
-    }else if (!formals && !actuals) {
-    }else{
+    } else if (formals || actuals) {
         type_error(env->pos) << "Mismatched arity" << endl;
     }
-
-    return true;
+    return false; // :/
 }
 
 /* Check formal vs. actual parameters at procedure/function calls. */
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list) {
     symbol *new_symbol = sym_tab->get_symbol(call_id->sym_p);
-    if (new_symbol->tag == SYM_FUNC){
+
+    if (new_symbol->tag == SYM_FUNC) {
         chk_param(call_id, new_symbol->get_function_symbol()->last_parameter, param_list);
     } else if (new_symbol->tag == SYM_PROC) {
         chk_param(call_id, new_symbol->get_procedure_symbol()->last_parameter, param_list);
-    }else{
+    } else {
         type_error(call_id->pos) << "Can only call func or proc" << endl;
     };
 }
@@ -138,31 +137,62 @@ sym_index ast_indexed::type_check() {
 /* This convenience function is used to type check all binary operations
    in which implicit casting of integer to real is done: plus, minus,
    multiplication. We synthesize type information as well. */
-sym_index semantic::check_binop1(ast_binaryoperation *node) {
-    /* Your code here */
-    return void_type; // You don't have to use this method but it might be convenient
+sym_index check_binop_with_cast(ast_binaryoperation *node, string op) {
+    // TODO(ed): Do some casting?
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left != integer_type && right != real_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type && right != real_type) {
+        type_error(node->right->pos) << "Right operand is not a number-type (" << op << ")" << endl;
+    }
+    if (left == right) {
+        return left;
+    } else if (left == integer_type) {
+        node->left = new ast_cast(node->left->pos, node->left);
+        return real_type;
+    } else if (right == integer_type) {
+        node->right = new ast_cast(node->right->pos, node->right);
+        return real_type;
+    } else {
+        type_error(node->pos) << "Edvard's logic is fallable" << endl;
+        return void_type;
+    }
 }
 
 sym_index ast_add::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_with_cast(this, "+");
 }
 
 sym_index ast_sub::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_with_cast(this, "-");
 }
 
 sym_index ast_mult::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_with_cast(this, "*");
 }
 
 /* Divide is a special case, since it always returns real. We make sure the
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check() {
-    /* Your code here */
-    return void_type;
+    auto node = this;
+    auto op = "/";
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left != integer_type && right != real_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type && right != real_type) {
+        type_error(node->right->pos) << "Right operand is not a number-type (" << op << ")" << endl;
+    }
+    if (left == integer_type) {
+        node->left = new ast_cast(node->left->pos, node->left);
+    }
+    if (right == integer_type) {
+        node->right = new ast_cast(node->right->pos, node->right);
+    }
+    return real_type;
 }
 
 /* This convenience method is used to type check all binary operations
@@ -171,62 +201,64 @@ sym_index ast_divide::type_check() {
    good error message.
    All of these return integers, so we synthesize that.
    */
-sym_index semantic::check_binop2(ast_binaryoperation *node, string s) {
-    /* Your code here */
-    return void_type;
+sym_index check_binop_int(ast_binaryoperation *node, string op) {
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left != integer_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    return integer_type;
 }
 
 sym_index ast_or::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "OR");
 }
 
 sym_index ast_and::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "AND");
 }
 
 sym_index ast_idiv::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "IDIV");
 }
 
 sym_index ast_mod::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "MOD");
 }
 
 /* Convienience method for all binary relations, since they're all typechecked
    the same way. They all return integer types, 1 = true, 0 = false. */
-sym_index semantic::check_binrel(ast_binaryrelation *node) {
-    /* Your code here */
-    return void_type;
+sym_index check_binrel(ast_binaryrelation *node, string op) {
+    // Maybe question your inheritance here...
+    auto dummy_node = new ast_add(node->pos, node->left, node->right);
+    check_binop_with_cast(dummy_node, op);
+    delete dummy_node;
+    return integer_type;
 }
 
 sym_index ast_equal::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "=");
 }
 
 sym_index ast_notequal::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "!=");
 }
 
 sym_index ast_lessthan::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "<");
 }
 
 sym_index ast_greaterthan::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, ">");
 }
 
 /*** The various classes derived from ast_statement. ***/
 
 sym_index ast_procedurecall::type_check() {
-    /* Your code here */
+    type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
@@ -295,7 +327,7 @@ sym_index ast_return::type_check() {
 }
 
 sym_index ast_functioncall::type_check() {
-    /* Your code here */
+    type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
