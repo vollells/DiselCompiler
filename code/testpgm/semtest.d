@@ -5,5 +5,5 @@ begin
 end;
 
 begin
-down();
+down(1.0 <> 0.0);
 end.
