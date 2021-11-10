@@ -289,7 +289,7 @@ sym_index ast_assign::type_check() {
         rhs = new ast_cast(pos, rhs);
         rhs->type = real_type;
     } else if (lhs_type != rhs_type) {
-        type_error(pos) << "Cannot assign to different type" << endl;
+        type_error(pos) << "Cannot assign to different type (except - int := real)" << endl;
     }
     return void_type;
 }
