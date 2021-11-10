@@ -200,29 +200,32 @@ sym_index ast_divide::type_check() {
    good error message.
    All of these return integers, so we synthesize that.
    */
-sym_index semantic::check_binop2(ast_binaryoperation *node, string s) {
-    /* Your code here */
-    return void_type;
+sym_index check_binop_int(ast_binaryoperation *node, string op) {
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left != integer_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    return integer_type;
 }
 
 sym_index ast_or::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "OR");
 }
 
 sym_index ast_and::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "AND");
 }
 
 sym_index ast_idiv::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "IDIV");
 }
 
 sym_index ast_mod::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binop_int(this, "MOD");
 }
 
 /* Convienience method for all binary relations, since they're all typechecked
