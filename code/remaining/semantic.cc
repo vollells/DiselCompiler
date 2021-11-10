@@ -140,10 +140,22 @@ sym_index check_binop1(ast_binaryoperation *node, string op) {
     // TODO(ed): Do some casting?
     auto left = node->left->type_check();
     auto right = node->right->type_check();
+    if (left != integer_type && right != real_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type && right != real_type) {
+        type_error(node->right->pos) << "Right operand is not a number-type (" << op << ")" << endl;
+    }
     if (left == right) {
         return left;
+    } else if (left == integer_type) {
+        node->left = new ast_cast(node->left->pos, node->left);
+        return real_type;
+    } else if (right == integer_type) {
+        node->right = new ast_cast(node->right->pos, node->right);
+        return real_type;
     } else {
-        type_error(node->pos) << "Type mismatch in binary operator (" << op << ")" << endl;
+        type_error(node->pos) << "Edvard's logic is fallable" << endl;
         return void_type;
     }
 }
