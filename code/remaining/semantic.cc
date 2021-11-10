@@ -175,7 +175,23 @@ sym_index ast_mult::type_check() {
 /* Divide is a special case, since it always returns real. We make sure the
    operands are cast to real too as needed. */
 sym_index ast_divide::type_check() {
-    return check_binop1(this, "/");
+    auto node = this;
+    auto op = "/";
+    auto left = node->left->type_check();
+    auto right = node->right->type_check();
+    if (left != integer_type && right != real_type) {
+        type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
+    }
+    if (right != integer_type && right != real_type) {
+        type_error(node->right->pos) << "Right operand is not a number-type (" << op << ")" << endl;
+    }
+    if (left == integer_type) {
+        node->left = new ast_cast(node->left->pos, node->left);
+    }
+    if (right == integer_type) {
+        node->right = new ast_cast(node->right->pos, node->right);
+    }
+    return real_type;
 }
 
 /* This convenience method is used to type check all binary operations
