@@ -66,6 +66,7 @@ DIGIT [0-9]
 
 \n       { column = 0; }
 [ ]+     { column += yyleng; }
+\t       { column += yyleng; }
 
 \.    { SPAN(); return T_DOT; }
 ;     { SPAN(); return T_SEMICOLON; }
