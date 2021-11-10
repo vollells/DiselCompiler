@@ -39,8 +39,6 @@ public:
     // NOTE: This should ideally be overloaded: One for binary_operations,
     // one for binary_relations, one for conditions (new abstract ast_node?),
     // one for expressions that aren't one of the above? Hmmm...
-
-    sym_index check_binrel(ast_binaryrelation *);
 };
 
 #endif

@@ -136,7 +136,7 @@ sym_index ast_indexed::type_check() {
 /* This convenience function is used to type check all binary operations
    in which implicit casting of integer to real is done: plus, minus,
    multiplication. We synthesize type information as well. */
-sym_index check_binop1(ast_binaryoperation *node, string op) {
+sym_index check_binop_with_cast(ast_binaryoperation *node, string op) {
     // TODO(ed): Do some casting?
     auto left = node->left->type_check();
     auto right = node->right->type_check();
@@ -161,15 +161,15 @@ sym_index check_binop1(ast_binaryoperation *node, string op) {
 }
 
 sym_index ast_add::type_check() {
-    return check_binop1(this, "+");
+    return check_binop_with_cast(this, "+");
 }
 
 sym_index ast_sub::type_check() {
-    return check_binop1(this, "-");
+    return check_binop_with_cast(this, "-");
 }
 
 sym_index ast_mult::type_check() {
-    return check_binop1(this, "*");
+    return check_binop_with_cast(this, "*");
 }
 
 /* Divide is a special case, since it always returns real. We make sure the
@@ -230,29 +230,28 @@ sym_index ast_mod::type_check() {
 
 /* Convienience method for all binary relations, since they're all typechecked
    the same way. They all return integer types, 1 = true, 0 = false. */
-sym_index semantic::check_binrel(ast_binaryrelation *node) {
-    /* Your code here */
-    return void_type;
+sym_index check_binrel(ast_binaryrelation *node, string op) {
+    // Maybe question your inheritance here...
+    auto dummy_node = new ast_add(node->pos, node->left, node->right);
+    check_binop_with_cast(dummy_node, op);
+    delete dummy_node;
+    return integer_type;
 }
 
 sym_index ast_equal::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "=");
 }
 
 sym_index ast_notequal::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "!=");
 }
 
 sym_index ast_lessthan::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, "<");
 }
 
 sym_index ast_greaterthan::type_check() {
-    /* Your code here */
-    return void_type;
+    return check_binrel(this, ">");
 }
 
 /*** The various classes derived from ast_statement. ***/
