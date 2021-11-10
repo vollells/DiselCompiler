@@ -109,7 +109,10 @@ sym_index ast_stmt_list::type_check() {
 
 /* Type check a list of expressions. */
 sym_index ast_expr_list::type_check() {
-    /* Your code here */
+    if (preceding) {
+        preceding->type_check();
+    }
+    last_expr->type_check();
     return void_type;
 }
 
@@ -133,7 +136,13 @@ sym_index ast_id::type_check() {
 }
 
 sym_index ast_indexed::type_check() {
-    /* Your code here */
+    auto index_type = index->type_check();
+    if (index_type == integer_type) {
+        type_error(index->pos) << "Index has to be of type integer" << endl;
+    }
+    if (sym_tab->get_symbol(id->sym_p)->tag != SYM_ARRAY) {
+        type_error(id->pos) << "Can only index into arrays" << endl;
+    }
     return void_type;
 }
 
@@ -266,14 +275,17 @@ sym_index ast_procedurecall::type_check() {
 }
 
 sym_index ast_assign::type_check() {
-    /* Your code here */
+    auto lhs_type = lhs->type_check();
+    auto rhs_type = rhs->type_check();
+    if (lhs_type != rhs_type) {
+        type_error(pos) << "Cannot assign to different type" << endl;
+    }
     return void_type;
 }
 
 sym_index ast_while::type_check() {
     if (condition->type_check() != integer_type) {
-        type_error(condition->pos) << "while predicate must be of integer "
-                                   << "type.\n";
+        type_error(condition->pos) << "while predicate must be of integer type" << endl;
     }
 
     if (body != NULL) {
@@ -293,7 +305,6 @@ sym_index ast_if::type_check() {
     if (else_body != NULL) {
         else_body->type_check();
     }
-
 
     return void_type;
 }
