@@ -137,13 +137,13 @@ sym_index ast_id::type_check() {
 
 sym_index ast_indexed::type_check() {
     auto index_type = index->type_check();
-    if (index_type == integer_type) {
+    if (index_type != integer_type) {
         type_error(index->pos) << "Index has to be of type integer" << endl;
     }
     if (sym_tab->get_symbol(id->sym_p)->tag != SYM_ARRAY) {
         type_error(id->pos) << "Can only index into arrays" << endl;
     }
-    return void_type;
+    return id->type_check();
 }
 
 /* This convenience function is used to type check all binary operations
