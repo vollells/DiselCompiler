@@ -39,11 +39,11 @@ bool semantic::chk_param(ast_id *env,
     if (formals && actuals) {
         if (formals->type == actuals->last_expr->type_check()) {
             chk_param(env, formals->preceding, actuals->preceding);
-        }else{
+        } else {
             type_error(actuals->pos) << "Types not matching" << endl;
         }
-    }else if (!formals && !actuals) {
-    }else{
+    } else if (!formals && !actuals) {
+    } else {
         type_error(env->pos) << "Mismatched arity" << endl;
     }
 
@@ -54,11 +54,11 @@ bool semantic::chk_param(ast_id *env,
 void semantic::check_parameters(ast_id *call_id,
                                 ast_expr_list *param_list) {
     symbol *new_symbol = sym_tab->get_symbol(call_id->sym_p);
-    if (new_symbol->tag == SYM_FUNC){
+    if (new_symbol->tag == SYM_FUNC) {
         chk_param(call_id, new_symbol->get_function_symbol()->last_parameter, param_list);
     } else if (new_symbol->tag == SYM_PROC) {
         chk_param(call_id, new_symbol->get_procedure_symbol()->last_parameter, param_list);
-    }else{
+    } else {
         type_error(call_id->pos) << "Can only call func or proc" << endl;
     };
 }
