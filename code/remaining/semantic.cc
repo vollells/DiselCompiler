@@ -42,8 +42,7 @@ bool semantic::chk_param(ast_id *env,
         } else {
             type_error(actuals->pos) << "Types not matching" << endl;
         }
-    } else if (!formals && !actuals) {
-    } else {
+    } else if (formals || actuals) {
         type_error(env->pos) << "Mismatched arity" << endl;
     }
 
@@ -226,7 +225,7 @@ sym_index ast_greaterthan::type_check() {
 /*** The various classes derived from ast_statement. ***/
 
 sym_index ast_procedurecall::type_check() {
-    /* Your code here */
+    type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
@@ -295,7 +294,7 @@ sym_index ast_return::type_check() {
 }
 
 sym_index ast_functioncall::type_check() {
-    /* Your code here */
+    type_checker->check_parameters(id, parameter_list);
     return void_type;
 }
 
