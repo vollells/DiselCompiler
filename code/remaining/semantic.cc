@@ -45,8 +45,7 @@ bool semantic::chk_param(ast_id *env,
     } else if (formals || actuals) {
         type_error(env->pos) << "Mismatched arity" << endl;
     }
-
-    return true;
+    return false; // :/
 }
 
 /* Check formal vs. actual parameters at procedure/function calls. */
