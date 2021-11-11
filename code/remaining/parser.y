@@ -608,7 +608,7 @@ rvariable       : rvar_id
                 {
                     $$ = new ast_indexed(POS(@2), $1, $3);
                 }
-                | error
+                | error T_SEMICOLON /* Why is this correct?*/
                 {
                     $$ = NULL;
                 }
