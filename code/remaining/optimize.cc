@@ -117,7 +117,7 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
 
         if (left_node->get_ast_integer() && right_node->get_ast_integer()){
             int left_int  = left_node->get_ast_integer()->value;
-            int right_int = right_node->get_ast_integer()->value; 
+            int right_int = right_node->get_ast_integer()->value;
             switch (node->tag) {
             case AST_ADD:
                 new_int = left_int + right_int;
@@ -145,8 +145,15 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
             }
         }
         return new ast_integer(node->pos, new_int);
-    } else if (node->tag == AST_ID && no) {
-        
+    } else if (node->tag == AST_ID) {
+        auto *id = node->get_ast_id();
+        auto *symbol = sym_tab->get_symbol(id->sym_p);
+        if (symbol->tag == SYM_CONST) {
+            auto *const_symbol = symbol->get_constant_symbol();
+            if (const_symbol->type == integer_type) {
+                return new ast_integer(node->pos, const_symbol->const_value.ival);
+            }
+        }
     }
     return node;
 }
