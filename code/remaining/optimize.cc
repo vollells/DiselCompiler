@@ -34,6 +34,19 @@ bool ast_optimizer::is_binop(ast_expression *node) {
     }
 }
 
+bool ast_optimizer::is_condop(ast_expression *node) {
+    switch (node->tag) {
+    case AST_LESSTHAN:
+    case AST_GREATERTHAN:
+    case AST_EQUAL:
+    case AST_NOTEQUAL:
+        return true;
+    default:
+        return false;
+    }
+}
+
+
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
    the correct method is invoked even if the pointers in the AST refer to
@@ -55,11 +68,7 @@ void ast_lvalue::optimize() {
 }
 
 void ast_binaryoperation::optimize() {
-    fatal("Trying to optimize abstract class ast_binaryoperation.");
-}
-
-void ast_binaryrelation::optimize() {
-    fatal("Trying to optimize abstract class ast_binaryrelation.");
+    // fatal("Trying to optimize abstract class ast_binaryoperation.");
 }
 
 /*** The optimize methods for the concrete AST classes. ***/
@@ -109,12 +118,14 @@ void ast_indexed::optimize() {
    binary operations. It returns either the resulting optimized node or the
    original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
-    if (is_binop(node)){
+    if (is_binop(node)) {
         ast_binaryoperation *binop_node = node->get_ast_binaryoperation();
         ast_expression *left_node = fold_constants(binop_node->left);
         ast_expression *right_node= fold_constants(binop_node->right);
-        int new_int = 0;
+        binop_node->left = left_node;
+        binop_node->right = right_node;
 
+        int new_int = 0;
         if (left_node->get_ast_integer() && right_node->get_ast_integer()){
             int left_int  = left_node->get_ast_integer()->value;
             int right_int = right_node->get_ast_integer()->value;
@@ -143,8 +154,8 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
             default:
                 fatal("Huh?");
             }
+            return new ast_integer(node->pos, new_int);
         }
-        return new ast_integer(node->pos, new_int);
     } else if (node->tag == AST_ID) {
         auto *id = node->get_ast_id();
         auto *symbol = sym_tab->get_symbol(id->sym_p);
@@ -158,51 +169,9 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
     return node;
 }
 
-/* All the binary operations should already have been detected in their parent
-   nodes, so we don't need to do anything at all here. */
-void ast_add::optimize() {
-}
-
-void ast_sub::optimize() {
-}
-
-void ast_mult::optimize() {
-}
-
-void ast_divide::optimize() {
-}
-
-void ast_or::optimize() {
-    /* Your code here */
-}
-
-void ast_and::optimize() {
-    /* Your code here */
-}
-
-void ast_idiv::optimize() {
-    /* Your code here */
-}
-
-void ast_mod::optimize() {
-    /* Your code here */
-}
-
-/* We can apply constant folding to binary relations as well. */
-void ast_equal::optimize() {
-    /* Your code here */
-}
-
-void ast_notequal::optimize() {
-    /* Your code here */
-}
-
-void ast_lessthan::optimize() {
-    /* Your code here */
-}
-
-void ast_greaterthan::optimize() {
-    /* Your code here */
+void ast_binaryrelation::optimize() {
+    left = optimizer->fold_constants(left);
+    right = optimizer->fold_constants(right);
 }
 
 /*** The various classes derived from ast_statement. ***/
@@ -216,39 +185,49 @@ void ast_assign::optimize() {
 }
 
 void ast_while::optimize() {
+    condition->optimize();
+    body->optimize();
 }
 
 void ast_if::optimize() {
+    condition->optimize();
+    body->optimize();
+    if (elsif_list) {
+        elsif_list->optimize();
+    }
+    if (else_body) {
+        else_body->optimize();
+    }
 }
 
 void ast_return::optimize() {
+    value = optimizer->fold_constants(value);
 }
 
 void ast_functioncall::optimize() {
-    /* Your code here */
+    parameter_list->optimize();
 }
 
 void ast_uminus::optimize() {
-    /* Your code here */
+    expr = optimizer->fold_constants(expr);
 }
 
 void ast_not::optimize() {
-    /* Your code here */
+    expr = optimizer->fold_constants(expr);
 }
 
 void ast_elsif::optimize() {
-    /* Your code here */
+    condition->optimize();
+    body->optimize();
 }
 
-void ast_integer::optimize() {
-}
+void ast_integer::optimize() { }
 
-void ast_real::optimize() {
-}
+void ast_real::optimize() { }
 
 /* Note: See the comment in fold_constants() about casts and folding. */
 void ast_cast::optimize() {
-    /* Your code here */
+    expr = optimizer->fold_constants(expr);
 }
 
 void ast_procedurehead::optimize() {

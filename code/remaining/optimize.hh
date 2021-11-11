@@ -34,6 +34,8 @@ public:
      */
     bool is_binop(ast_expression *);
 
+    bool is_condop(ast_expression *);
+
     /*!
       This is a convenient method used in optimize.cc. It has to be public
       so the ast_* nodes can access it. Another solution would be to make it

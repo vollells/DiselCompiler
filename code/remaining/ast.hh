@@ -1112,9 +1112,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 };
@@ -1130,9 +1127,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1150,9 +1144,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 };
@@ -1168,9 +1159,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1213,9 +1201,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 
@@ -1236,9 +1221,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1261,9 +1243,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 
@@ -1284,9 +1263,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1309,9 +1285,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 
@@ -1332,9 +1305,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
@@ -1357,9 +1327,6 @@ public:
     // Perform type checking.
     virtual sym_index type_check();
 
-    // AST optimization.
-    virtual void optimize();
-
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
 
@@ -1380,9 +1347,6 @@ public:
 
     // Perform type checking.
     virtual sym_index type_check();
-
-    // AST optimization.
-    virtual void optimize();
 
     // Quad generation.
     virtual sym_index generate_quads(quad_list &);
