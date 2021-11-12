@@ -46,7 +46,6 @@ bool ast_optimizer::is_condop(ast_expression *node) {
     }
 }
 
-
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
    the correct method is invoked even if the pointers in the AST refer to
@@ -121,13 +120,13 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
     if (is_binop(node)) {
         ast_binaryoperation *binop_node = node->get_ast_binaryoperation();
         ast_expression *left_node = fold_constants(binop_node->left);
-        ast_expression *right_node= fold_constants(binop_node->right);
+        ast_expression *right_node = fold_constants(binop_node->right);
         binop_node->left = left_node;
         binop_node->right = right_node;
 
         int new_int = 0;
-        if (left_node->get_ast_integer() && right_node->get_ast_integer()){
-            int left_int  = left_node->get_ast_integer()->value;
+        if (left_node->get_ast_integer() && right_node->get_ast_integer()) {
+            int left_int = left_node->get_ast_integer()->value;
             int right_int = right_node->get_ast_integer()->value;
             switch (node->tag) {
             case AST_ADD:
@@ -166,10 +165,10 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
             }
         }
     } else if (node->tag == AST_UMINUS) {
-        ast_uminus *new_node = dynamic_cast<ast_uminus*>(node);
+        ast_uminus *new_node = dynamic_cast<ast_uminus *>(node);
         new_node->expr = optimizer->fold_constants(new_node->expr);
-        if (new_node->get_ast_integer()){
-           return new ast_integer(new_node->pos, -new_node->get_ast_integer()->value);
+        if (new_node->get_ast_integer()) {
+            return new ast_integer(new_node->pos, -new_node->get_ast_integer()->value);
         }
     }
     return node;
@@ -225,9 +224,9 @@ void ast_elsif::optimize() {
     body->optimize();
 }
 
-void ast_integer::optimize() { }
+void ast_integer::optimize() {}
 
-void ast_real::optimize() { }
+void ast_real::optimize() {}
 
 /* Note: See the comment in fold_constants() about casts and folding. */
 void ast_cast::optimize() {
