@@ -88,7 +88,7 @@ void ast_expr_list::optimize() {
         preceding->optimize();
     }
     if (last_expr != NULL) {
-        last_expr->optimize();
+        last_expr = optimizer->fold_constants(last_expr);
     }
 }
 
@@ -124,8 +124,8 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
         binop_node->left = left_node;
         binop_node->right = right_node;
 
-        int new_int = 0;
         if (left_node->get_ast_integer() && right_node->get_ast_integer()) {
+            int new_int = 0;
             int left_int = left_node->get_ast_integer()->value;
             int right_int = right_node->get_ast_integer()->value;
             switch (node->tag) {
@@ -155,6 +155,36 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
             }
             return new ast_integer(node->pos, new_int);
         }
+    } else if (is_condop(node)) {
+        ast_binaryrelation *binrel_node = dynamic_cast<ast_binaryrelation *>(node);
+        ast_expression *left_node = fold_constants(binrel_node->left);
+        ast_expression *right_node = fold_constants(binrel_node->right);
+        binrel_node->left = left_node;
+        binrel_node->right = right_node;
+
+        if (left_node->get_ast_integer() && right_node->get_ast_integer()) {
+            int new_int = 0;
+            int left_int = left_node->get_ast_integer()->value;
+            int right_int = right_node->get_ast_integer()->value;
+            switch (node->tag) {
+            case AST_LESSTHAN:
+                new_int = left_int < right_int;
+                break;
+            case AST_GREATERTHAN:
+                new_int = left_int > right_int;
+                break;
+            case AST_EQUAL:
+                new_int = left_int == right_int;
+                break;
+            case AST_NOTEQUAL:
+                new_int = left_int != right_int;
+                break;
+            default:
+                fatal("Huh?");
+            }
+            return new ast_integer(node->pos, new_int);
+        }
+
     } else if (node->tag == AST_ID) {
         auto *id = node->get_ast_id();
         auto *symbol = sym_tab->get_symbol(id->sym_p);
@@ -170,6 +200,8 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
         if (new_node->get_ast_integer()) {
             return new ast_integer(new_node->pos, -new_node->get_ast_integer()->value);
         }
+    } else if (node->tag == AST_FUNCTIONCALL) {
+        node->optimize();
     }
     return node;
 }
@@ -182,7 +214,7 @@ void ast_binaryrelation::optimize() {
 /*** The various classes derived from ast_statement. ***/
 
 void ast_procedurecall::optimize() {
-    /* Your code here */
+    parameter_list->optimize();
 }
 
 void ast_assign::optimize() {
