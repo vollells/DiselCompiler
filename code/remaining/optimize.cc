@@ -165,6 +165,12 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
                 return new ast_integer(node->pos, const_symbol->const_value.ival);
             }
         }
+    } else if (node->tag == AST_UMINUS) {
+        ast_uminus *new_node = dynamic_cast<ast_uminus*>(node);
+        new_node->expr = optimizer->fold_constants(new_node->expr);
+        if (new_node->get_ast_integer()){
+           return new ast_integer(new_node->pos, -new_node->get_ast_integer()->value);
+        }
     }
     return node;
 }
@@ -209,11 +215,9 @@ void ast_functioncall::optimize() {
 }
 
 void ast_uminus::optimize() {
-    expr = optimizer->fold_constants(expr);
 }
 
 void ast_not::optimize() {
-    expr = optimizer->fold_constants(expr);
 }
 
 void ast_elsif::optimize() {
