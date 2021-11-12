@@ -9,11 +9,6 @@ class semantic;
 extern semantic *type_checker;
 
 class semantic {
-private:
-    // Check formal vs actual parameters. This function recurses down the
-    // parameter lists. Called by check_parameters.
-    bool chk_param(ast_id *, parameter_symbol *, ast_expr_list *);
-
 public:
     /*! \brief Compare formal vs. actual parameters in function/procedure calls.
 

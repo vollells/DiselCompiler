@@ -33,19 +33,19 @@ void semantic::do_typecheck(symbol *env, ast_stmt_list *body) {
 }
 
 /* Compare formal vs. actual parameters recursively. */
-bool semantic::chk_param(ast_id *env,
+void chk_param(ast_id *env,
                          parameter_symbol *formals,
                          ast_expr_list *actuals) {
     if (formals && actuals) {
-        if (formals->type == actuals->last_expr->type_check()) {
+        auto t = actuals->last_expr->type_check();
+        if (formals->type == t) {
             chk_param(env, formals->preceding, actuals->preceding);
         } else {
-            type_error(actuals->pos) << "Types not matching" << endl;
+            type_error(actuals->pos) << "Type discrepancy between formal and actual parameters" << endl;
         }
     } else if (formals || actuals) {
         type_error(env->pos) << "Mismatched arity" << endl;
     }
-    return false; // :/
 }
 
 /* Check formal vs. actual parameters at procedure/function calls. */
@@ -150,10 +150,10 @@ sym_index ast_indexed::type_check() {
    in which implicit casting of integer to real is done: plus, minus,
    multiplication. We synthesize type information as well. */
 sym_index check_binop_with_cast(ast_binaryoperation *node, string op) {
-    // TODO(ed): Do some casting?
     auto left = node->left->type_check();
     auto right = node->right->type_check();
-    if (left != integer_type && right != real_type) {
+
+    if (left != integer_type && left != real_type) {
         type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
     }
     if (right != integer_type && right != real_type) {
@@ -279,7 +279,8 @@ sym_index ast_greaterthan::type_check() {
 
 sym_index ast_procedurecall::type_check() {
     type_checker->check_parameters(id, parameter_list);
-    return void_type;
+    symbol *function = sym_tab->get_symbol(id->sym_p);
+    return function->type;
 }
 
 sym_index ast_assign::type_check() {
@@ -309,7 +310,7 @@ sym_index ast_if::type_check() {
     if (condition->type_check() != integer_type) {
         type_error(condition->pos) << "Not an integer vaule in if" << endl;
     }
-    body->last_stmt->type_check();
+    body->type_check();
     if (elsif_list != NULL) {
         elsif_list->type_check();
     }
@@ -364,7 +365,7 @@ sym_index ast_return::type_check() {
 
 sym_index ast_functioncall::type_check() {
     type_checker->check_parameters(id, parameter_list);
-    return void_type;
+    return sym_tab->get_symbol(id->sym_p)->type;
 }
 
 sym_index ast_uminus::type_check() {
