@@ -190,7 +190,7 @@ void ast_while::optimize() {
 }
 
 void ast_if::optimize() {
-    condition->optimize();
+    condition = optimizer->fold_constants(condition);
     body->optimize();
     if (elsif_list) {
         elsif_list->optimize();
