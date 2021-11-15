@@ -167,6 +167,7 @@ ast_expression *fold_constants_binaryop(ast_expression *node) {
         double ret = do_binop(left, right, node->tag);
         return new ast_real(node->pos, ret);
     }
+    // TODO[et]: Do cast?
     return node;
 }
 
