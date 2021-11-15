@@ -215,39 +215,35 @@ sym_index ast_mod::generate_quads(quad_list &q) {
 }
 
 sym_index ast_or::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_ior, q_invalid);
 }
 
 sym_index ast_and::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_iand, q_invalid);
+}
+
+ast_binaryrelation* safe_binrel(ast_expression* expr) {
+    auto bin = dynamic_cast<ast_binaryrelation*>(expr);
+    if (!bin) {
+        fatal("Invalid cast!");
+    }
+    return bin;
 }
 
 sym_index ast_equal::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binrel(this), q_ieq, q_req);
 }
 
 sym_index ast_notequal::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binrel(this), q_ine, q_rne);
 }
 
 sym_index ast_lessthan::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binrel(this), q_ilt, q_rlt);
 }
 
 sym_index ast_greaterthan::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binrel(this), q_igt, q_rgt);
 }
 
 /* Since an lvalue can be either an id or an array reference, we can't solve
