@@ -116,8 +116,7 @@ sym_index ast_elsif::generate_quads(quad_list &q) {
 
 sym_index ast_id::generate_quads(quad_list &q) {
     USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return sym_p;
 }
 
 sym_index ast_integer::generate_quads(quad_list &q) {
@@ -140,9 +139,10 @@ sym_index ast_real::generate_quads(quad_list &q) {
    do_binary* functions above. Why? */
 
 sym_index ast_not::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index expr_sym = expr->generate_quads(q);
+    sym_index tmp_sym = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(q_inot, expr_sym, NULL_SYM, tmp_sym);
+    return tmp_sym;
 }
 
 sym_index ast_uminus::generate_quads(quad_list &q) {
