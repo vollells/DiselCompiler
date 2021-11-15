@@ -166,28 +166,44 @@ sym_index ast_cast::generate_quads(quad_list &q) {
     return tmp_sym;
 }
 
+template <typename T>
+sym_index bin_op_quads(quad_list &q, T *op, quad_op_type iop, quad_op_type rop) {
+    sym_index left_sym = op->left->generate_quads(q);
+    sym_index right_sym = op->right->generate_quads(q);
+    auto ty = sym_tab->get_symbol_type(left_sym);
+    sym_index tmp_sym = sym_tab->gen_temp_var(ty);
+    if (ty == integer_type) {
+        q += new quadruple(iop, left_sym, right_sym, tmp_sym);
+    } else if (ty == real_type) {
+        q += new quadruple(rop, left_sym, right_sym, tmp_sym);
+    } else {
+        fatal("Expected real or integer in quad-generation");
+    }
+    return tmp_sym;
+}
+
+ast_binaryoperation* safe_binop(ast_expression* expr) {
+    auto bin = dynamic_cast<ast_binaryoperation*>(expr);
+    if (!bin) {
+        fatal("Invalid cast!");
+    }
+    return bin;
+}
+
 sym_index ast_add::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_iplus, q_rplus);
 }
 
 sym_index ast_sub::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_iminus, q_rminus);
 }
 
 sym_index ast_mult::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_imult, q_rmult);
 }
 
 sym_index ast_divide::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_idivide, q_rdivide);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q) {
