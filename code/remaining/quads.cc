@@ -292,22 +292,43 @@ sym_index ast_assign::generate_quads(quad_list &q) {
 void ast_expr_list::generate_parameter_list(quad_list &q,
                                             parameter_symbol *last_param,
                                             int *nr_params) {
-    USE_Q;
-    /* Your code here */
+    // TODO(ed): This order might be wrong...
+    (*nr_params)++;
+    if (preceding) {
+        preceding->generate_parameter_list(q, last_param->preceding, nr_params);
+    }
+    if (!last_expr) {
+        fatal("Last expression isn't set for argument list");
+    }
+    auto expr_sym = last_expr->generate_quads(q);
+    q += new quadruple(q_param, expr_sym, NULL_SYM, NULL_SYM);
 }
 
 /* Generate quads for a procedure call. */
 sym_index ast_procedurecall::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
+    symbol *proc = sym_tab->get_symbol(id->sym_p);
+    int nr_params;
+    parameter_list->generate_parameter_list(
+            q,
+            proc->get_procedure_symbol()->last_parameter,
+            &nr_params
+    );
+    q += new quadruple(q_call, id->sym_p, nr_params, NULL_SYM);
     return NULL_SYM;
 }
 
 /* Generate quads for a function call. */
 sym_index ast_functioncall::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    symbol *proc = sym_tab->get_symbol(id->sym_p);
+    int nr_params;
+    parameter_list->generate_parameter_list(
+            q,
+            proc->get_function_symbol()->last_parameter,
+            &nr_params
+    );
+    sym_index ret_sym = sym_tab->gen_temp_var(proc->type);
+    q += new quadruple(q_call, id->sym_p, nr_params, ret_sym);
+    return ret_sym;
 }
 
 /* Generate quads for a while statement.
