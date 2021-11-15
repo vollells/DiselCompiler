@@ -203,19 +203,15 @@ sym_index ast_mult::generate_quads(quad_list &q) {
 }
 
 sym_index ast_divide::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_idivide, q_rdivide);
+    return bin_op_quads(q, safe_binop(this), q_invalid, q_rdivide);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_idivide, q_invalid);
 }
 
 sym_index ast_mod::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    return bin_op_quads(q, safe_binop(this), q_imod, q_invalid);
 }
 
 sym_index ast_or::generate_quads(quad_list &q) {
@@ -683,6 +679,9 @@ void quadruple::print(ostream &o) {
           << setw(11) << "-"
           << setw(11) << "-"
           << setw(11) << "-";
+        break;
+    case q_invalid:
+        o << setw(11 * 4) << "==== q_invalid ====";
         break;
     default:
         o << "unknown (" << (int)op_code << ")";

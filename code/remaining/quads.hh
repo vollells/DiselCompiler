@@ -50,7 +50,8 @@ typedef enum {
     q_jmpf,    // int, sym, -
     q_param,   // sym, -, -
     q_labl,    // int, -, -
-    q_nop      // -, -, -
+    q_nop,     // -, -, -
+    q_invalid, // Should never be seen
 } quad_op_type;
 
 class quad_list;
