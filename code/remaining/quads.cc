@@ -108,12 +108,6 @@ sym_index ast_elsif_list::generate_quads(quad_list &q) {
    in one form or another. For nodes that don't return a useful result,
    NULL_SYM is returned. */
 
-sym_index ast_elsif::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
-}
-
 sym_index ast_id::generate_quads(quad_list &q) {
     USE_Q;
     return sym_p;
@@ -359,6 +353,12 @@ sym_index ast_while::generate_quads(quad_list &q) {
     return NULL_SYM;
 }
 
+sym_index ast_elsif::generate_quads(quad_list &q) {
+    USE_Q;
+    /* Your code here */
+    return NULL_SYM;
+}
+
 /* Generate quads for an individual elsif statement, including an ending
    jump to an end label. See ast_if::generate_quads for more information. */
 void ast_elsif::generate_quads_and_jump(quad_list &q, int label) {
@@ -382,9 +382,17 @@ sym_index ast_if::generate_quads(quad_list &q) {
 
 /* Generate quads for a return statement. */
 sym_index ast_return::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index expr_sym = value->generate_quads(q);
+    auto ty = sym_tab->get_symbol_type(expr_sym);
+    sym_index tmp_sym = sym_tab->gen_temp_var(ty);
+    if (ty == integer_type) {
+        q += new quadruple(q_ireturn, q.last_label, expr_sym, NULL_SYM);
+    } else if (ty == real_type) {
+        q += new quadruple(q_rreturn, q.last_label, expr_sym, NULL_SYM);
+    } else {
+        fatal("Expected real or integer in quad-generation");
+    }
+    return tmp_sym;
 }
 
 /* Generate quads for an array reference. */
@@ -431,6 +439,7 @@ quad_list *ast_procedurehead::do_quads(ast_stmt_list *s) {
         s->generate_quads(*q);
     }
 
+    // TODO(ed): Is this intntionall? You specify it should be at the head?
     (*q) += new quadruple(q_labl, last_label, NULL_SYM, NULL_SYM);
 
     return q;
