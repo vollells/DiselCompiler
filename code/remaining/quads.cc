@@ -121,15 +121,15 @@ sym_index ast_id::generate_quads(quad_list &q) {
 }
 
 sym_index ast_integer::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index sym_p = sym_tab->gen_temp_var(integer_type);
+    q += new quadruple(q_iload, value, NULL_SYM, sym_p);
+    return sym_p;
 }
 
 sym_index ast_real::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index sym_p = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(q_rload, value, NULL_SYM, sym_p);
+    return sym_p;
 }
 
 /* Expressions of various kinds. */
