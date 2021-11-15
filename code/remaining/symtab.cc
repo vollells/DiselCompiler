@@ -165,8 +165,9 @@ long symbol_table::get_next_label() {
    large programs anyway. The type should never be void_type; if it is, it's
    an error. This method is used for quad generation. */
 sym_index symbol_table::gen_temp_var(sym_index type) {
-    /* Your code here */
-    return NULL_SYM;
+    string temp_name = "$" + to_string(temp_nr++);
+    auto id = pool_install(const_cast<char*>(temp_name.c_str()));
+    return enter_variable(NULL, id, type);
 }
 
 /* This function returns the byte size of a nametype. */
