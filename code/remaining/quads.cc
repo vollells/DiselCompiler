@@ -160,9 +160,10 @@ sym_index ast_uminus::generate_quads(quad_list &q) {
 }
 
 sym_index ast_cast::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index expr_sym = expr->generate_quads(q);
+    sym_index tmp_sym = sym_tab->gen_temp_var(real_type);
+    q += new quadruple(q_itor, expr_sym, NULL_SYM, tmp_sym);
+    return tmp_sym;
 }
 
 sym_index ast_add::generate_quads(quad_list &q) {
