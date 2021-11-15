@@ -34,8 +34,8 @@ void semantic::do_typecheck(symbol *env, ast_stmt_list *body) {
 
 /* Compare formal vs. actual parameters recursively. */
 void chk_param(ast_id *env,
-                         parameter_symbol *formals,
-                         ast_expr_list *actuals) {
+               parameter_symbol *formals,
+               ast_expr_list *actuals) {
     if (formals && actuals) {
         auto t = actuals->last_expr->type_check();
         if (formals->type == t) {
@@ -196,7 +196,7 @@ sym_index ast_divide::type_check() {
     auto op = "/";
     auto left = node->left->type_check();
     auto right = node->right->type_check();
-    if (left != integer_type && right != real_type) {
+    if (left != integer_type && left != real_type) {
         type_error(node->left->pos) << "Left operand is not a number-type (" << op << ")" << endl;
     }
     if (right != integer_type && right != real_type) {

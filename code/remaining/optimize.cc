@@ -46,7 +46,6 @@ bool ast_optimizer::is_condop(ast_expression *node) {
     }
 }
 
-
 /* We overload this method for the various ast_node subclasses that can
    appear in the AST. By use of virtual (dynamic) methods, we ensure that
    the correct method is invoked even if the pointers in the AST refer to
@@ -89,7 +88,7 @@ void ast_expr_list::optimize() {
         preceding->optimize();
     }
     if (last_expr != NULL) {
-        last_expr->optimize();
+        last_expr = optimizer->fold_constants(last_expr);
     }
 }
 
@@ -114,48 +113,71 @@ void ast_indexed::optimize() {
     index->optimize();
 }
 
+template <typename T>
+T do_binop(T left, T right, ast_node_type tag) {
+    switch (tag) {
+    case AST_ADD:
+        return left + right;
+    case AST_SUB:
+        return left - right;
+    case AST_OR:
+        return (T)((bool)left) || ((bool)right);
+    case AST_AND:
+        return (T)((bool)left) && ((bool)right);
+    case AST_MULT:
+        return left * right;
+    case AST_IDIV:
+        return left / right;
+    case AST_MOD:
+        return ((long)left) % ((long)right);
+    case AST_LESSTHAN:
+        return left < right;
+    case AST_GREATERTHAN:
+        return left > right;
+    case AST_EQUAL:
+        return left == right;
+    case AST_NOTEQUAL:
+        return left != right;
+    default:
+        fatal("Huh?");
+        return left;
+    }
+}
+
+template <typename T>
+ast_expression *fold_constants_binaryop(ast_expression *node) {
+    T *binop_node = dynamic_cast<T *>(node);
+    if (!binop_node) {
+        fatal("Failed to cast - check the optimization function");
+    }
+    ast_expression *left_node = optimizer->fold_constants(binop_node->left);
+    ast_expression *right_node = optimizer->fold_constants(binop_node->right);
+    binop_node->left = left_node;
+    binop_node->right = right_node;
+
+    if (left_node->get_ast_integer() && right_node->get_ast_integer()) {
+        int left = left_node->get_ast_integer()->value;
+        int right = right_node->get_ast_integer()->value;
+        int ret = do_binop(left, right, node->tag);
+        return new ast_integer(node->pos, ret);
+    }
+    if (left_node->get_ast_real() && right_node->get_ast_real()) {
+        double left = left_node->get_ast_real()->value;
+        double right = right_node->get_ast_real()->value;
+        double ret = do_binop(left, right, node->tag);
+        return new ast_real(node->pos, ret);
+    }
+    return node;
+}
+
 /* This convenience method is used to apply constant folding to all
    binary operations. It returns either the resulting optimized node or the
    original node if no optimization could be performed. */
 ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
     if (is_binop(node)) {
-        ast_binaryoperation *binop_node = node->get_ast_binaryoperation();
-        ast_expression *left_node = fold_constants(binop_node->left);
-        ast_expression *right_node= fold_constants(binop_node->right);
-        binop_node->left = left_node;
-        binop_node->right = right_node;
-
-        int new_int = 0;
-        if (left_node->get_ast_integer() && right_node->get_ast_integer()){
-            int left_int  = left_node->get_ast_integer()->value;
-            int right_int = right_node->get_ast_integer()->value;
-            switch (node->tag) {
-            case AST_ADD:
-                new_int = left_int + right_int;
-                break;
-            case AST_SUB:
-                new_int = left_int - right_int;
-                break;
-            case AST_OR:
-                new_int = left_int || right_int;
-                break;
-            case AST_AND:
-                new_int = left_int && right_int;
-                break;
-            case AST_MULT:
-                new_int = left_int * right_int;
-                break;
-            case AST_IDIV:
-                new_int = left_int / right_int;
-                break;
-            case AST_MOD:
-                new_int = left_int % right_int;
-                break;
-            default:
-                fatal("Huh?");
-            }
-            return new ast_integer(node->pos, new_int);
-        }
+        return fold_constants_binaryop<ast_binaryoperation>(node);
+    } else if (is_condop(node)) {
+        return fold_constants_binaryop<ast_binaryrelation>(node);
     } else if (node->tag == AST_ID) {
         auto *id = node->get_ast_id();
         auto *symbol = sym_tab->get_symbol(id->sym_p);
@@ -164,7 +186,27 @@ ast_expression *ast_optimizer::fold_constants(ast_expression *node) {
             if (const_symbol->type == integer_type) {
                 return new ast_integer(node->pos, const_symbol->const_value.ival);
             }
+            if (const_symbol->type == real_type) {
+                return new ast_real(node->pos, const_symbol->const_value.rval);
+            }
         }
+    } else if (node->tag == AST_UMINUS) {
+        auto *new_node = dynamic_cast<ast_uminus *>(node);
+        new_node->expr = optimizer->fold_constants(new_node->expr);
+        if (new_node->get_ast_integer()) {
+            return new ast_integer(new_node->pos, -new_node->get_ast_integer()->value);
+        }
+        if (new_node->get_ast_real()) {
+            return new ast_real(new_node->pos, -new_node->get_ast_real()->value);
+        }
+    } else if (node->tag == AST_NOT) {
+        auto *new_node = dynamic_cast<ast_not *>(node);
+        new_node->expr = optimizer->fold_constants(new_node->expr);
+        if (new_node->get_ast_integer()) {
+            return new ast_integer(new_node->pos, !new_node->get_ast_integer()->value);
+        }
+    } else if (node->tag == AST_FUNCTIONCALL) {
+        node->optimize();
     }
     return node;
 }
@@ -177,7 +219,7 @@ void ast_binaryrelation::optimize() {
 /*** The various classes derived from ast_statement. ***/
 
 void ast_procedurecall::optimize() {
-    /* Your code here */
+    parameter_list->optimize();
 }
 
 void ast_assign::optimize() {
@@ -190,7 +232,7 @@ void ast_while::optimize() {
 }
 
 void ast_if::optimize() {
-    condition->optimize();
+    condition = optimizer->fold_constants(condition);
     body->optimize();
     if (elsif_list) {
         elsif_list->optimize();
@@ -209,21 +251,19 @@ void ast_functioncall::optimize() {
 }
 
 void ast_uminus::optimize() {
-    expr = optimizer->fold_constants(expr);
 }
 
 void ast_not::optimize() {
-    expr = optimizer->fold_constants(expr);
 }
 
 void ast_elsif::optimize() {
-    condition->optimize();
+    condition = optimizer->fold_constants(condition);
     body->optimize();
 }
 
-void ast_integer::optimize() { }
+void ast_integer::optimize() {}
 
-void ast_real::optimize() { }
+void ast_real::optimize() {}
 
 /* Note: See the comment in fold_constants() about casts and folding. */
 void ast_cast::optimize() {
