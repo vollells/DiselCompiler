@@ -146,9 +146,17 @@ sym_index ast_not::generate_quads(quad_list &q) {
 }
 
 sym_index ast_uminus::generate_quads(quad_list &q) {
-    USE_Q;
-    /* Your code here */
-    return NULL_SYM;
+    sym_index expr_sym = expr->generate_quads(q);
+    auto ty = sym_tab->get_symbol_type(expr_sym);
+    sym_index tmp_sym = sym_tab->gen_temp_var(ty);
+    if (ty == integer_type) {
+        q += new quadruple(q_iuminus, expr_sym, NULL_SYM, tmp_sym);
+    } else if (ty == real_type) {
+        q += new quadruple(q_ruminus, expr_sym, NULL_SYM, tmp_sym);
+    } else {
+        fatal("Expected real or integer in quad-generation");
+    }
+    return tmp_sym;
 }
 
 sym_index ast_cast::generate_quads(quad_list &q) {
