@@ -197,23 +197,23 @@ sym_index ast_mult::generate_quads(quad_list &q) {
 }
 
 sym_index ast_divide::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_invalid, q_rdivide);
+    return bin_op_quads(q, safe_binop(this), q_nop, q_rdivide);
 }
 
 sym_index ast_idiv::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_idivide, q_invalid);
+    return bin_op_quads(q, safe_binop(this), q_idivide, q_nop);
 }
 
 sym_index ast_mod::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_imod, q_invalid);
+    return bin_op_quads(q, safe_binop(this), q_imod, q_nop);
 }
 
 sym_index ast_or::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_ior, q_invalid);
+    return bin_op_quads(q, safe_binop(this), q_ior, q_nop);
 }
 
 sym_index ast_and::generate_quads(quad_list &q) {
-    return bin_op_quads(q, safe_binop(this), q_iand, q_invalid);
+    return bin_op_quads(q, safe_binop(this), q_iand, q_nop);
 }
 
 ast_binaryrelation* safe_binrel(ast_expression* expr) {
@@ -376,7 +376,13 @@ void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label) {
 /* Generate quads for an if statement. */
 sym_index ast_if::generate_quads(quad_list &q) {
     USE_Q;
-    /* Your code here */
+    int label_after = sym_tab->get_next_label();
+    sym_index cond_res = condition->generate_quads(q);
+
+    q += new quadruple(q_jmpf, label_after, cond_res, NULL_SYM);
+    body->generate_quads(q);
+    q += new quadruple(q_labl, label_after, NULL_SYM, NULL_SYM);
+
     return NULL_SYM;
 }
 
@@ -705,9 +711,6 @@ void quadruple::print(ostream &o) {
           << setw(11) << "-"
           << setw(11) << "-"
           << setw(11) << "-";
-        break;
-    case q_invalid:
-        o << setw(11 * 4) << "==== q_invalid ====";
         break;
     default:
         o << "unknown (" << (int)op_code << ")";
