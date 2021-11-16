@@ -355,34 +355,54 @@ sym_index ast_while::generate_quads(quad_list &q) {
 
 sym_index ast_elsif::generate_quads(quad_list &q) {
     USE_Q;
-    /* Your code here */
+    fatal("Why is this run, ast_elsif generate quads");
     return NULL_SYM;
 }
 
 /* Generate quads for an individual elsif statement, including an ending
    jump to an end label. See ast_if::generate_quads for more information. */
 void ast_elsif::generate_quads_and_jump(quad_list &q, int label) {
-    USE_Q;
-    /* Your code here */
+    int label_elsif = sym_tab->get_next_label();
+
+    sym_index cond_res = condition->generate_quads(q);
+    q += new quadruple(q_jmpf, label_elsif, cond_res, NULL_SYM);
+    body->generate_quads(q);
+    q += new quadruple(q_jmp, label, NULL_SYM, NULL_SYM);
+    q += new quadruple(q_labl, label_elsif, NULL_SYM, NULL_SYM);
 }
 
 /* Generate quads (with an ending jump to an end label) for an elsif list.
    See generate_quads for ast_if for more information. */
 void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label) {
-    USE_Q;
-    /* Your code here */
+    last_elsif->generate_quads_and_jump(q, label);
+
+    if (preceding) {
+        preceding->generate_quads_and_jump(q, label);
+    }
 }
 
 /* Generate quads for an if statement. */
 sym_index ast_if::generate_quads(quad_list &q) {
-    USE_Q;
     int label_after = sym_tab->get_next_label();
+    int label_elsif = sym_tab->get_next_label();
+    int label_else = sym_tab->get_next_label();
     sym_index cond_res = condition->generate_quads(q);
 
-    q += new quadruple(q_jmpf, label_after, cond_res, NULL_SYM);
+    q += new quadruple(q_jmpf, label_elsif, cond_res, NULL_SYM);
     body->generate_quads(q);
-    q += new quadruple(q_labl, label_after, NULL_SYM, NULL_SYM);
+    q += new quadruple(q_jmp, label_after, NULL_SYM, NULL_SYM);
 
+    q += new quadruple(q_labl, label_elsif, NULL_SYM, NULL_SYM);
+    if (elsif_list) {
+        elsif_list->generate_quads_and_jump(q, label_after);
+    }
+
+    q += new quadruple(q_labl, label_else, NULL_SYM, NULL_SYM);
+    if (else_body){
+        else_body->generate_quads(q);
+    }
+
+    q += new quadruple(q_labl, label_after, NULL_SYM, NULL_SYM);
     return NULL_SYM;
 }
 
