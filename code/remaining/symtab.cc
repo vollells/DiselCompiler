@@ -165,8 +165,11 @@ long symbol_table::get_next_label() {
    large programs anyway. The type should never be void_type; if it is, it's
    an error. This method is used for quad generation. */
 sym_index symbol_table::gen_temp_var(sym_index type) {
-    string temp_name = "$" + to_string(temp_nr++);
-    auto id = pool_install(const_cast<char*>(temp_name.c_str()));
+    string temp_name = "$" + to_string(++temp_nr);
+    if (temp_nr > MAX_TEMP_VARS) {
+        fatal("Cannot compile this much code! :<");
+    }
+    auto id = pool_install(const_cast<char *>(temp_name.c_str()));
     return enter_variable(NULL, id, type);
 }
 

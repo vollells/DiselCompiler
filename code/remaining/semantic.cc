@@ -132,7 +132,8 @@ sym_index ast_id::type_check() {
     if (sym_tab->get_symbol(sym_p)->tag != SYM_NAMETYPE) {
         return type;
     }
-    return sym_p;
+    fatal("ast_id should be a SYM_NAMETYPE");
+    return type;
 }
 
 sym_index ast_indexed::type_check() {
@@ -143,7 +144,8 @@ sym_index ast_indexed::type_check() {
     if (sym_tab->get_symbol(id->sym_p)->tag != SYM_ARRAY) {
         type_error(id->pos) << "Can only index into arrays" << endl;
     }
-    return id->type_check();
+    type = id->type_check();
+    return type;
 }
 
 /* This convenience function is used to type check all binary operations
@@ -389,7 +391,7 @@ sym_index ast_elsif::type_check() {
     if (condition->type_check() != integer_type) {
         type_error(condition->pos) << "Not an integer vaule in if" << endl;
     }
-    if (body){
+    if (body) {
         body->type_check();
     }
     return void_type;

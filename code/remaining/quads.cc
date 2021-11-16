@@ -164,7 +164,7 @@ template <typename T>
 sym_index bin_op_quads(quad_list &q, T *op, quad_op_type iop, quad_op_type rop) {
     sym_index left_sym = op->left->generate_quads(q);
     sym_index right_sym = op->right->generate_quads(q);
-    auto ty = sym_tab->get_symbol_type(left_sym);
+    auto ty = op->left->type;
     sym_index tmp_sym = sym_tab->gen_temp_var(ty);
     if (ty == integer_type) {
         q += new quadruple(iop, left_sym, right_sym, tmp_sym);
@@ -176,8 +176,8 @@ sym_index bin_op_quads(quad_list &q, T *op, quad_op_type iop, quad_op_type rop) 
     return tmp_sym;
 }
 
-ast_binaryoperation* safe_binop(ast_expression* expr) {
-    auto bin = dynamic_cast<ast_binaryoperation*>(expr);
+ast_binaryoperation *safe_binop(ast_expression *expr) {
+    auto bin = dynamic_cast<ast_binaryoperation *>(expr);
     if (!bin) {
         fatal("Invalid cast!");
     }
@@ -216,8 +216,8 @@ sym_index ast_and::generate_quads(quad_list &q) {
     return bin_op_quads(q, safe_binop(this), q_iand, q_nop);
 }
 
-ast_binaryrelation* safe_binrel(ast_expression* expr) {
-    auto bin = dynamic_cast<ast_binaryrelation*>(expr);
+ast_binaryrelation *safe_binrel(ast_expression *expr) {
+    auto bin = dynamic_cast<ast_binaryrelation *>(expr);
     if (!bin) {
         fatal("Invalid cast!");
     }
@@ -303,10 +303,9 @@ sym_index ast_procedurecall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
     int nr_params;
     parameter_list->generate_parameter_list(
-            q,
-            proc->get_procedure_symbol()->last_parameter,
-            &nr_params
-    );
+        q,
+        proc->get_procedure_symbol()->last_parameter,
+        &nr_params);
     q += new quadruple(q_call, id->sym_p, nr_params, NULL_SYM);
     return NULL_SYM;
 }
@@ -316,10 +315,9 @@ sym_index ast_functioncall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
     int nr_params;
     parameter_list->generate_parameter_list(
-            q,
-            proc->get_function_symbol()->last_parameter,
-            &nr_params
-    );
+        q,
+        proc->get_function_symbol()->last_parameter,
+        &nr_params);
     sym_index ret_sym = sym_tab->gen_temp_var(proc->type);
     q += new quadruple(q_call, id->sym_p, nr_params, ret_sym);
     return ret_sym;
@@ -387,8 +385,8 @@ void ast_elsif_list::generate_quads_and_jump(quad_list &q, int label) {
 
 /* Generate quads for an if statement. */
 sym_index ast_if::generate_quads(quad_list &q) {
-    int label_after = sym_tab->get_next_label();
     int label_elsif = sym_tab->get_next_label();
+    int label_after = sym_tab->get_next_label();
     int label_else = sym_tab->get_next_label();
     sym_index cond_res = condition->generate_quads(q);
 
@@ -402,7 +400,7 @@ sym_index ast_if::generate_quads(quad_list &q) {
     }
 
     q += new quadruple(q_labl, label_else, NULL_SYM, NULL_SYM);
-    if (else_body){
+    if (else_body) {
         else_body->generate_quads(q);
     }
 
