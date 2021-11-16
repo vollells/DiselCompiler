@@ -366,7 +366,11 @@ void ast_elsif::generate_quads_and_jump(quad_list &q, int label) {
 
     sym_index cond_res = condition->generate_quads(q);
     q += new quadruple(q_jmpf, label_elsif, cond_res, NULL_SYM);
-    body->generate_quads(q);
+
+    if (body) {
+        body->generate_quads(q);
+    }
+
     q += new quadruple(q_jmp, label, NULL_SYM, NULL_SYM);
     q += new quadruple(q_labl, label_elsif, NULL_SYM, NULL_SYM);
 }
@@ -424,7 +428,7 @@ sym_index ast_return::generate_quads(quad_list &q) {
 /* Generate quads for an array reference. */
 sym_index ast_indexed::generate_quads(quad_list &q) {
     USE_Q;
-    /* Your code here */
+
     return NULL_SYM;
 }
 

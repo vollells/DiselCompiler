@@ -389,7 +389,9 @@ sym_index ast_elsif::type_check() {
     if (condition->type_check() != integer_type) {
         type_error(condition->pos) << "Not an integer vaule in if" << endl;
     }
-    body->type_check();
+    if (body){
+        body->type_check();
+    }
     return void_type;
 }
 

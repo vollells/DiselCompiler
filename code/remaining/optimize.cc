@@ -259,7 +259,9 @@ void ast_not::optimize() {
 
 void ast_elsif::optimize() {
     condition = optimizer->fold_constants(condition);
-    body->optimize();
+    if (body) {
+        body->optimize();
+    }
 }
 
 void ast_integer::optimize() {}
