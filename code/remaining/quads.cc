@@ -425,9 +425,17 @@ sym_index ast_return::generate_quads(quad_list &q) {
 
 /* Generate quads for an array reference. */
 sym_index ast_indexed::generate_quads(quad_list &q) {
-    USE_Q;
+    sym_index index_pos = index->generate_quads(q);
+    sym_index res_sym = sym_tab->gen_temp_var(type);
 
-    return NULL_SYM;
+    if (type == integer_type) {
+        q += new quadruple(q_irindex, id->sym_p, index_pos, res_sym);
+    } else if (type == real_type) {
+        q += new quadruple(q_rrindex, id->sym_p, index_pos, res_sym);
+    } else {
+        fatal("Illegal type in ast_indexed::generate_quads()");
+    }
+    return res_sym;
 }
 
 /* Generate quads for a list of statements. Note that this is not necessarily
