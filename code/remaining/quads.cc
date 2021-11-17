@@ -301,7 +301,7 @@ void ast_expr_list::generate_parameter_list(quad_list &q,
 /* Generate quads for a procedure call. */
 sym_index ast_procedurecall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
-    int nr_params;
+    int nr_params = 0;
     parameter_list->generate_parameter_list(
         q,
         proc->get_procedure_symbol()->last_parameter,
@@ -313,7 +313,7 @@ sym_index ast_procedurecall::generate_quads(quad_list &q) {
 /* Generate quads for a function call. */
 sym_index ast_functioncall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
-    int nr_params;
+    int nr_params = 0;
     parameter_list->generate_parameter_list(
         q,
         proc->get_function_symbol()->last_parameter,
