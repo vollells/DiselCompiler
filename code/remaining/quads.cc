@@ -410,17 +410,21 @@ sym_index ast_if::generate_quads(quad_list &q) {
 
 /* Generate quads for a return statement. */
 sym_index ast_return::generate_quads(quad_list &q) {
-    sym_index expr_sym = value->generate_quads(q);
-    auto ty = sym_tab->get_symbol_type(expr_sym);
-    sym_index tmp_sym = sym_tab->gen_temp_var(ty);
-    if (ty == integer_type) {
-        q += new quadruple(q_ireturn, q.last_label, expr_sym, NULL_SYM);
-    } else if (ty == real_type) {
-        q += new quadruple(q_rreturn, q.last_label, expr_sym, NULL_SYM);
+    if (value){
+        sym_index expr_sym = value->generate_quads(q);
+        auto ty = sym_tab->get_symbol_type(expr_sym);
+        sym_index tmp_sym = sym_tab->gen_temp_var(ty);
+        if (ty == integer_type) {
+            q += new quadruple(q_ireturn, q.last_label, expr_sym, NULL_SYM);
+        } else if (ty == real_type) {
+            q += new quadruple(q_rreturn, q.last_label, expr_sym, NULL_SYM);
+        } else {
+            fatal("Expected real or integer in quad-generation");
+        }
+        return tmp_sym;
     } else {
-        fatal("Expected real or integer in quad-generation");
+        return NULL_SYM;
     }
-    return tmp_sym;
 }
 
 /* Generate quads for an array reference. */
