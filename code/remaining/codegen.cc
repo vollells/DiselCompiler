@@ -48,6 +48,11 @@ int code_generator::align(int frame_size) {
     return ((frame_size + 7) / 8) * 8;
 }
 
+const char *get_symbol_name(sym_index sym_p) {
+    auto *sym = sym_tab->get_symbol(sym_p);
+    return sym_tab->pool_lookup(sym->id);
+}
+
 /* This method generates assembler code for initialisating a procedure or
    function. */
 void code_generator::prologue(symbol *new_env) {
@@ -110,7 +115,9 @@ void code_generator::epilogue(symbol *old_env) {
 /* This function finds the display register level and offset for a variable,
    array or a parameter. Note the pass-by-pointer arguments. */
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
-    /* Your code here */
+    auto *symbol = sym_tab->get_symbol(sym_p);
+    *level = symbol->level;
+    *offset = symbol->offset;
 }
 
 /*
@@ -118,6 +125,12 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
     /* Your code here */
+}
+
+string stack_lookup(int level, int offset) {
+    stringstream ss;
+    ss << "[RSB+" << offset << "]";
+    return ss.str();
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -132,8 +145,25 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
             << "\t"
             << reg[dest] << ", "
             << value << endl;
+        return;
     } else if (f_sym->tag == SYM_VAR) {
-        fatal("TODO");
+        // fatal("TODO");
+        int level, offset;
+        find(sym_p, &level, &offset);
+        out << "# fetch var - " << get_symbol_name(sym_p)
+            << " - level : " << level
+            << " offset : " << offset << endl;
+
+        out << "\t\t"
+            << "mov"
+            << "\t"
+            << reg[dest] << ", "
+            << stack_lookup(level, offset)
+            << endl;
+
+    } else if (f_sym->tag == SYM_PARAM) {
+        // fatal("TODO");
+        out << "# fetch param" << endl;
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
         return;
@@ -142,20 +172,46 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
 void code_generator::fetch_float(sym_index sym_p) {
     /* Your code here */
+    out << "# fetch_float" << endl;
 }
 
 /* This function stores the value of a register into a variable. */
 void code_generator::store(register_type src, sym_index sym_p) {
-    /* Your code here */
+    // TODO(ed): Is this correct?
+    symbol *f_sym = sym_tab->get_symbol(sym_p);
+    if (f_sym->tag == SYM_VAR) {
+        // fatal("TODO");
+        int level, offset;
+        find(sym_p, &level, &offset);
+        out << "# store var - " << get_symbol_name(sym_p)
+            << " - level : " << level
+            << " offset : " << offset << endl;
+
+        out << "\t\t"
+            << "mov"
+            << "\t"
+            << stack_lookup(level, offset) << ", "
+            << reg[src]
+            << endl;
+
+    } else if (f_sym->tag == SYM_PARAM) {
+        // fatal("TODO");
+        out << "# store param" << endl;
+    } else {
+        fatal("Can only fetch SYM_CONST and SYM_VAR");
+        return;
+    }
 }
 
 void code_generator::store_float(sym_index sym_p) {
     /* Your code here */
+    out << "# store_float" << endl;
 }
 
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest) {
     /* Your code here */
+    out << "# array_address" << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
