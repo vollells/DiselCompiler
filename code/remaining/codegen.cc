@@ -838,11 +838,19 @@ void code_generator::expand(quad_list *q_list) {
             break;
 
         case q_param:
-            /* Your code here */
+            store(RAX, q->sym1);
+            out << "\t\tpush\trax" << endl;
             break;
 
         case q_call: {
-            /* Your code here */
+            // Call
+            out << "\t\tcall\tL" << q->int2 << endl;
+            // Setup return address
+            if (q->sym3 != NULL_SYM) {
+                store(RAX, q->sym3);
+            }
+            // Reset stack
+            out << "\t\tadd\trsp, " << q->int2 * 8 << endl;
             break;
         }
         case q_rreturn:
