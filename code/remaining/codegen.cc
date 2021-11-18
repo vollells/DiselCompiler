@@ -182,18 +182,19 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
             << value << endl;
         return;
     } else if (f_sym->tag == SYM_VAR) {
-        // fatal("TODO");
         int level, offset;
         find(sym_p, &level, &offset);
-        // out << "# fetch var - " << get_symbol_name(sym_p)
-        //     << " - level : " << level
-        //     << " offset : " << offset << endl;
+        // TODO(ed): Don't use RCX? RBX?
+        out << "\t\t"
+            << "mov "
+            << "rcx, "
+            << "[rbp-" << level * 8 << "]"
+            << endl;
 
         out << "\t\t"
-            << "mov"
-            << "\t"
-            << reg[dest] << ", "
-            << stack_lookup(level, offset)
+            << "mov\t"
+            << reg[dest]
+            << ", [rcx-" << offset << "]"
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
@@ -231,8 +232,8 @@ void code_generator::store(register_type src, sym_index sym_p) {
 
         out << "\t\t"
             << "mov "
+            << "[rcx-" << offset << "], "
             << reg[src]
-            << ", [rcx-" << offset << "]"
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
@@ -845,7 +846,7 @@ void code_generator::expand(quad_list *q_list) {
 
         case q_param:
             out << "# Q" << endl;
-            store(RAX, q->sym1);
+            fetch(q->sym1, RAX);
             out << "\t\tpush\trax" << endl;
             break;
 
