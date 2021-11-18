@@ -161,7 +161,11 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  * Generates code for getting the address of a frame for the specified scope level.
  */
 void code_generator::frame_address(int level, const register_type dest) {
-    /* Your code here */
+    out << "\t\t"
+        << "mov "
+        << reg[dest]
+        << ", [rbp-" << level * 8 << "]"
+        << endl;
 }
 
 string stack_lookup(int level, int offset) {
