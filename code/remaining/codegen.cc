@@ -204,8 +204,19 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
-        // fatal("TODO");
-        // out << "# fetch param" << endl;
+        int level, offset;
+        find(sym_p, &level, &offset);
+
+        // TODO(ed): Don't use RCX? RBX? - same as frame_address
+#error "This doesn't work - please fix!"
+        out << "# DEBUG - " << get_symbol_name(sym_p) << " " << offset << endl;
+        auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+        out << "\t\t"
+            << "mov "
+            << "rcx, "
+            << "[rbp+" << (8 + env->get_procedure_symbol()->ar_size) << "]"
+            << endl;
+
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
         return;
