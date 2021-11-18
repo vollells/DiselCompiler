@@ -94,6 +94,36 @@ void code_generator::prologue(symbol *new_env) {
             << long_symbols << ")" << endl;
     }
 
+    out << "\t\t"
+        << "push"
+        << "\t"
+        << "rbp" << endl;
+
+    // No idea why we need to do this
+    out << "\t\t"
+        << "mov rcx, rsp" << endl;
+
+    // TODO(ed): Push lexical scopes above
+    out << "# begin display" << endl;
+    for (int i = 1; i <= new_env->level; i++) {
+        out << "\t\t"
+            << "push\t [rbp-" << 8 * i << "]" << endl;
+    }
+    out << "# end display" << endl;
+
+    // Push our own RBP
+    out
+        << "\t\t"
+        << "push\t rcx" << endl;
+
+    // ????
+    out << "\t\t"
+        << "mov\t rbp, rcx" << endl;
+
+    // Allocate the stack
+    out << "\t\t"
+        << "sub\t rsp, " << ar_size << endl;
+
     /* Your code here */
 
     out << flush;
@@ -107,7 +137,8 @@ void code_generator::epilogue(symbol *old_env) {
             << long_symbols << ")" << endl;
     }
 
-    /* Your code here */
+    out << "\t\tleave" << endl;
+    out << "\t\tret" << endl;
 
     out << flush;
 }
@@ -129,7 +160,7 @@ void code_generator::frame_address(int level, const register_type dest) {
 
 string stack_lookup(int level, int offset) {
     stringstream ss;
-    ss << "[RSB+" << offset << "]";
+    ss << "[rbp-" << offset << "]";
     return ss.str();
 }
 
