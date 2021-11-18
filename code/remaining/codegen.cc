@@ -190,7 +190,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
     } else if (f_sym->tag == SYM_VAR) {
         int level, offset;
         find(sym_p, &level, &offset);
-        // TODO(ed): Don't use RCX? RBX?
+        // TODO(ed): Don't use RCX? RBX? - same as frame_address
         out << "\t\t"
             << "mov "
             << "rcx, "
@@ -851,7 +851,6 @@ void code_generator::expand(quad_list *q_list) {
             break;
 
         case q_param:
-            out << "# Q" << endl;
             fetch(q->sym1, RAX);
             out << "\t\tpush\trax" << endl;
             break;
