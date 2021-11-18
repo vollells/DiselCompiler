@@ -222,11 +222,17 @@ void code_generator::store(register_type src, sym_index sym_p) {
         //     << " - level : " << level
         //     << " offset : " << offset << endl;
 
+        // Should we write `rcx` here?
         out << "\t\t"
-            << "mov"
-            << "\t"
-            << stack_lookup(level, offset) << ", "
+            << "mov "
+            << "rcx, "
+            << "[rbp-" << level * 8 << "]"
+            << endl;
+
+        out << "\t\t"
+            << "mov "
             << reg[src]
+            << ", [rcx-" << offset << "]"
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
@@ -838,6 +844,7 @@ void code_generator::expand(quad_list *q_list) {
             break;
 
         case q_param:
+            out << "# Q" << endl;
             store(RAX, q->sym1);
             out << "\t\tpush\trax" << endl;
             break;
