@@ -123,6 +123,28 @@ void code_generator::frame_address(int level, const register_type dest) {
 /* This function fetches the value of a variable or a constant into a
    register. */
 void code_generator::fetch(sym_index sym_p, register_type dest) {
+    symbol *f_sym = sym_tab->get_symbol(sym_p);
+    if (f_sym->tag == SYM_CONST){
+        int value = f_sym->get_constant_symbol()->const_value.ival;
+        out << "\t\t"
+            << "mov"
+            << "\t"
+            << reg[dest] << ", "
+            << value << endl;
+    } else if (f_sym->tag == SYM_VAR){
+        int value = f_sym->get_variable_symbol()->
+        out << "\t\t"
+            << "mov"
+            << "\t"
+            << reg[dest] << ", "
+            << value << endl;
+    } else if (f_sym->tag == SYM_PARAM){
+        int value = f_sym->get_parameter_symbol()->
+        out << "\t\t"
+            << "mov"
+            << "\t"
+            << reg[dest] << ", "
+            << value << endl;
     /* Your code here */
 }
 
