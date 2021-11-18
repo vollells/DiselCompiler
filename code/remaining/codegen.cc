@@ -104,25 +104,29 @@ void code_generator::prologue(symbol *new_env) {
         << "mov rcx, rsp" << endl;
 
     // TODO(ed): Push lexical scopes above
-    out << "# begin display" << endl;
+    if (assembler_trace) {
+        out << "# begin display" << endl;
+    }
     for (int i = 1; i <= new_env->level; i++) {
         out << "\t\t"
             << "push\t [rbp-" << 8 * i << "]" << endl;
     }
-    out << "# end display" << endl;
+    if (assembler_trace) {
+        out << "# end display" << endl;
+    }
 
     // Push our own RBP
     out
         << "\t\t"
-        << "push\t rcx" << endl;
+        << "push\trcx" << endl;
 
     // ????
     out << "\t\t"
-        << "mov\t rbp, rcx" << endl;
+        << "mov\trbp, rcx" << endl;
 
     // Allocate the stack
     out << "\t\t"
-        << "sub\t rsp, " << ar_size << endl;
+        << "sub\trsp, " << ar_size << endl;
 
     /* Your code here */
 
@@ -181,9 +185,9 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
         // fatal("TODO");
         int level, offset;
         find(sym_p, &level, &offset);
-        out << "# fetch var - " << get_symbol_name(sym_p)
-            << " - level : " << level
-            << " offset : " << offset << endl;
+        // out << "# fetch var - " << get_symbol_name(sym_p)
+        //     << " - level : " << level
+        //     << " offset : " << offset << endl;
 
         out << "\t\t"
             << "mov"
@@ -194,7 +198,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
     } else if (f_sym->tag == SYM_PARAM) {
         // fatal("TODO");
-        out << "# fetch param" << endl;
+        // out << "# fetch param" << endl;
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
         return;
@@ -214,9 +218,9 @@ void code_generator::store(register_type src, sym_index sym_p) {
         // fatal("TODO");
         int level, offset;
         find(sym_p, &level, &offset);
-        out << "# store var - " << get_symbol_name(sym_p)
-            << " - level : " << level
-            << " offset : " << offset << endl;
+        // out << "# store var - " << get_symbol_name(sym_p)
+        //     << " - level : " << level
+        //     << " offset : " << offset << endl;
 
         out << "\t\t"
             << "mov"
@@ -227,7 +231,7 @@ void code_generator::store(register_type src, sym_index sym_p) {
 
     } else if (f_sym->tag == SYM_PARAM) {
         // fatal("TODO");
-        out << "# store param" << endl;
+        // out << "# store param" << endl;
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
         return;
