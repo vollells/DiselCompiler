@@ -151,8 +151,10 @@ void code_generator::epilogue(symbol *old_env) {
    array or a parameter. Note the pass-by-pointer arguments. */
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
     auto *symbol = sym_tab->get_symbol(sym_p);
+    auto *env = sym_tab->get_symbol(sym_tab->current_environment());
     *level = symbol->level;
-    *offset = symbol->offset;
+    // +2 because of [Previous RBP] and [Main RBP] which always are precent.
+    *offset = symbol->offset + 8 * (2 + env->level);
 }
 
 /*
