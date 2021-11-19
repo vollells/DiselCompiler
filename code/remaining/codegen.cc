@@ -257,8 +257,30 @@ void code_generator::store(register_type src, sym_index sym_p) {
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
-        // fatal("TODO");
-        // out << "# store param" << endl;
+        auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+        parameter_symbol *params = nullptr;
+        if (env->tag == SYM_PROC) {
+            params = env->get_procedure_symbol()->last_parameter;
+        } else {
+            params = env->get_function_symbol()->last_parameter;
+        }
+        int back_offset = 8; // Skip return address
+        while (params) {
+            back_offset += params->size;
+            if (sym_tab->pool_compare(params->id, f_sym->id)) {
+                break;
+            }
+            params = params->preceding;
+        }
+        if (!params) {
+            fatal("TODO: Test next lexical scope");
+        }
+
+        out << "\t\t"
+            << "mov\t"
+            << "[rbp+" << back_offset << "]"
+            << ", "  << reg[src]
+            << endl;
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
         return;
