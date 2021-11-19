@@ -2,13 +2,18 @@
 program simple;
 
 procedure A(b: integer);
+          procedure C;
+          begin;
+            b := b+1;
+          end;
+
 begin;
     WRITE(b);
-    b := b+1;
+    C();
     WRITE(b);
     WRITE(10);
 end;
 
 begin;
-    A(77);
+    A(65);
 end.
