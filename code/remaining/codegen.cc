@@ -88,6 +88,7 @@ void code_generator::prologue(symbol *new_env) {
         /* Print out the function/procedure name */
         sym_tab->pool_lookup(new_env->id) << endl;
 
+    assembler_trace = true;
     if (assembler_trace) {
         out << "\t"
             << "# PROLOGUE (" << short_symbols << new_env
@@ -204,17 +205,30 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
-        int level, offset;
-        find(sym_p, &level, &offset);
 
-        // TODO(ed): Don't use RCX? RBX? - same as frame_address
-#error "This doesn't work - please fix!"
-        out << "# DEBUG - " << get_symbol_name(sym_p) << " " << offset << endl;
         auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+        parameter_symbol *params = nullptr;
+        if (env->tag == SYM_PROC) {
+            params = env->get_procedure_symbol()->last_parameter;
+        } else {
+            params = env->get_function_symbol()->last_parameter;
+        }
+        int back_offset = 8; // Skip return address
+        while (params) {
+            back_offset += params->size;
+            if (sym_tab->pool_compare(params->id, f_sym->id)) {
+                break;
+            }
+            params = params->preceding;
+        }
+        if (!params) {
+            fatal("TODO: Test next lexical scope");
+        }
+
         out << "\t\t"
             << "mov "
-            << "rcx, "
-            << "[rbp+" << (8 + env->get_procedure_symbol()->ar_size) << "]"
+            << reg[dest] << ", "
+            << "[rbp+" << back_offset << "]"
             << endl;
 
     } else {
@@ -868,7 +882,14 @@ void code_generator::expand(quad_list *q_list) {
 
         case q_call: {
             // Call
-            out << "\t\tcall\tL" << q->int2 << endl;
+            auto* f_sym = sym_tab->get_symbol(q->sym1);
+            auto label = 0;
+            if (f_sym->tag == SYM_PROC) {
+                label = f_sym->get_procedure_symbol()->label_nr;
+            } else {
+                label = f_sym->get_function_symbol()->label_nr;
+            }
+            out << "\t\tcall\tL" << label << endl;
             // Setup return address
             if (q->sym3 != NULL_SYM) {
                 store(RAX, q->sym3);
