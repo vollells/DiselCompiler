@@ -88,7 +88,6 @@ void code_generator::prologue(symbol *new_env) {
         /* Print out the function/procedure name */
         sym_tab->pool_lookup(new_env->id) << endl;
 
-    assembler_trace = true;
     if (assembler_trace) {
         out << "\t"
             << "# PROLOGUE (" << short_symbols << new_env
@@ -163,16 +162,10 @@ void code_generator::find(sym_index sym_p, int *level, int *offset) {
  */
 void code_generator::frame_address(int level, const register_type dest) {
     out << "\t\t"
-        << "mov "
+        << "mov\t"
         << reg[dest]
         << ", [rbp-" << level * 8 << "]"
         << endl;
-}
-
-string stack_lookup(int level, int offset) {
-    stringstream ss;
-    ss << "[rbp-" << offset << "]";
-    return ss.str();
 }
 
 /* This function fetches the value of a variable or a constant into a
@@ -193,7 +186,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
         find(sym_p, &level, &offset);
         // TODO(ed): Don't use RCX? RBX? - same as frame_address
         out << "\t\t"
-            << "mov "
+            << "mov\t"
             << "rcx, "
             << "[rbp-" << level * 8 << "]"
             << endl;
@@ -226,7 +219,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
         }
 
         out << "\t\t"
-            << "mov "
+            << "mov\t"
             << reg[dest] << ", "
             << "[rbp+" << back_offset << "]"
             << endl;
@@ -247,22 +240,18 @@ void code_generator::store(register_type src, sym_index sym_p) {
     // TODO(ed): Is this correct?
     symbol *f_sym = sym_tab->get_symbol(sym_p);
     if (f_sym->tag == SYM_VAR) {
-        // fatal("TODO");
         int level, offset;
         find(sym_p, &level, &offset);
-        // out << "# store var - " << get_symbol_name(sym_p)
-        //     << " - level : " << level
-        //     << " offset : " << offset << endl;
 
         // Should we write `rcx` here?
         out << "\t\t"
-            << "mov "
+            << "mov\t"
             << "rcx, "
             << "[rbp-" << level * 8 << "]"
             << endl;
 
         out << "\t\t"
-            << "mov "
+            << "mov\t"
             << "[rcx-" << offset << "], "
             << reg[src]
             << endl;
