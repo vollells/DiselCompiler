@@ -87,7 +87,7 @@ void code_generator::prologue(symbol *new_env) {
         << "# " <<
         /* Print out the function/procedure name */
         sym_tab->pool_lookup(new_env->id) << endl;
-
+    assembler_trace = true;
     if (assembler_trace) {
         out << "\t"
             << "# PROLOGUE (" << short_symbols << new_env
@@ -199,29 +199,36 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
     } else if (f_sym->tag == SYM_PARAM) {
 
-        auto *env = sym_tab->get_symbol(sym_tab->current_environment());
-        parameter_symbol *params = nullptr;
-        if (env->tag == SYM_PROC) {
-            params = env->get_procedure_symbol()->last_parameter;
-        } else {
-            params = env->get_function_symbol()->last_parameter;
-        }
-        int back_offset = 8; // Skip return address
-        while (params) {
-            back_offset += params->size;
-            if (sym_tab->pool_compare(params->id, f_sym->id)) {
-                break;
-            }
-            params = params->preceding;
-        }
-        if (!params) {
-            fatal("TODO: Test next lexical scope");
-        }
+        // auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+        // parameter_symbol *params = nullptr;
+        // if (env->tag == SYM_PROC) {
+        //     params = env->get_procedure_symbol()->last_parameter;
+        // } else {
+        //     params = env->get_function_symbol()->last_parameter;
+        // }
+        // int back_offset = 8; // Skip return address
+        // while (params) {
+        //     back_offset += params->size;
+        //     if (sym_tab->pool_compare(params->id, f_sym->id)) {
+        //         break;
+        //     }
+        //     params = params->preceding;
+        // }
+        // if (!params) {
+        //     fatal("TODO: Test next lexical scope");
+        // }
+        int level, offset;
+        find(sym_p, &level, &offset);
+        out << "\t\t"
+            << "mov\t"
+            << "rcx, "
+            << "[rbp-" << level * 8 << "]"
+            << endl;
 
         out << "\t\t"
             << "mov\t"
             << reg[dest] << ", "
-            << "[rbp+" << back_offset << "]"
+            << "[rcx+" << offset << "]"
             << endl;
 
     } else {
@@ -257,28 +264,35 @@ void code_generator::store(register_type src, sym_index sym_p) {
             << endl;
 
     } else if (f_sym->tag == SYM_PARAM) {
-        auto *env = sym_tab->get_symbol(sym_tab->current_environment());
-        parameter_symbol *params = nullptr;
-        if (env->tag == SYM_PROC) {
-            params = env->get_procedure_symbol()->last_parameter;
-        } else {
-            params = env->get_function_symbol()->last_parameter;
-        }
-        int back_offset = 8; // Skip return address
-        while (params) {
-            back_offset += params->size;
-            if (sym_tab->pool_compare(params->id, f_sym->id)) {
-                break;
-            }
-            params = params->preceding;
-        }
-        if (!params) {
-            fatal("TODO: Test next lexical scope");
-        }
+        // auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+        // parameter_symbol *params = nullptr;
+        // if (env->tag == SYM_PROC) {
+        //     params = env->get_procedure_symbol()->last_parameter;
+        // } else {
+        //     params = env->get_function_symbol()->last_parameter;
+        // }
+        // int back_offset = 8; // Skip return address
+        // while (params) {
+        //     back_offset += params->size;
+        //     if (sym_tab->pool_compare(params->id, f_sym->id)) {
+        //         break;
+        //     }
+        //     params = params->preceding;
+        // }
+        // if (!params) {
+        //     fatal("TODO: Test next lexical scope");
+        // }
+        int level, offset;
+        find(sym_p, &level, &offset);
+        out << "\t\t"
+            << "mov\t"
+            << "rcx, "
+            << "[rbp-" << level * 8 << "]"
+            << endl;
 
         out << "\t\t"
             << "mov\t"
-            << "[rbp+" << back_offset << "]"
+            << "[rcx+" << offset << "]"
             << ", "  << reg[src]
             << endl;
     } else {

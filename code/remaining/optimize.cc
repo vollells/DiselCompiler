@@ -220,7 +220,9 @@ void ast_binaryrelation::optimize() {
 /*** The various classes derived from ast_statement. ***/
 
 void ast_procedurecall::optimize() {
-    parameter_list->optimize();
+    if(parameter_list){
+        parameter_list->optimize();
+    }
 }
 
 void ast_assign::optimize() {
@@ -250,7 +252,9 @@ void ast_return::optimize() {
 }
 
 void ast_functioncall::optimize() {
-    parameter_list->optimize();
+    if(parameter_list){
+        parameter_list->optimize();
+    }
 }
 
 void ast_uminus::optimize() {

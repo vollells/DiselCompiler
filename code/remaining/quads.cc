@@ -302,10 +302,12 @@ void ast_expr_list::generate_parameter_list(quad_list &q,
 sym_index ast_procedurecall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
     int nr_params = 0;
-    parameter_list->generate_parameter_list(
-        q,
-        proc->get_procedure_symbol()->last_parameter,
-        &nr_params);
+    if(parameter_list){
+        parameter_list->generate_parameter_list(
+            q,
+            proc->get_procedure_symbol()->last_parameter,
+            &nr_params);
+    }
     q += new quadruple(q_call, id->sym_p, nr_params, NULL_SYM);
     return NULL_SYM;
 }
@@ -314,10 +316,12 @@ sym_index ast_procedurecall::generate_quads(quad_list &q) {
 sym_index ast_functioncall::generate_quads(quad_list &q) {
     symbol *proc = sym_tab->get_symbol(id->sym_p);
     int nr_params = 0;
-    parameter_list->generate_parameter_list(
-        q,
-        proc->get_function_symbol()->last_parameter,
-        &nr_params);
+    if(parameter_list){
+        parameter_list->generate_parameter_list(
+            q,
+            proc->get_function_symbol()->last_parameter,
+            &nr_params);
+    }
     sym_index ret_sym = sym_tab->gen_temp_var(proc->type);
     q += new quadruple(q_call, id->sym_p, nr_params, ret_sym);
     return ret_sym;
