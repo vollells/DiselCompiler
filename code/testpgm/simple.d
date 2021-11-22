@@ -1,19 +1,26 @@
 // make && ./diesel -y -q ../testpgm/simple.d && cat d.out && ./a.out
 program simple;
 
-procedure A(b: integer);
-          procedure C;
-          begin;
-            b := b+1;
-          end;
+procedure A(b: integer; c: integer; d: integer);
+
+    procedure Q;
+        procedure W;
+        begin;
+            b := b + 1;
+            c := c + 1;
+            d := d + 1;
+        end;
+    begin;
+        W();
+    end;
 
 begin;
     WRITE(b);
-    C();
+    Q();
     WRITE(b);
     WRITE(10);
 end;
 
 begin;
-    A(65);
+    A(65, 0, 0);
 end.
