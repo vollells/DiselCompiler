@@ -553,6 +553,9 @@ public:
     // Return type byte size.
     int get_size(const sym_index);
 
+    // Returns the symbol for the level.
+    symbol *get_context(const int);
+
     // --- String pool methods. ---
 
     /*!

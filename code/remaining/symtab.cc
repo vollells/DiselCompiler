@@ -160,6 +160,13 @@ long symbol_table::get_next_label() {
     return label_nr++;
 }
 
+symbol *symbol_table::get_context(const int level) {
+    if (level > current_level) {
+        fatal("Level is too large!");
+    }
+    return get_symbol(block_table[level]);
+}
+
 /* Generate a unique temporary variable name. We do it without any extra fuss:
    $1, $2, $3, $4 ... up to 1 million. Diesel isn't written to handle that
    large programs anyway. The type should never be void_type; if it is, it's

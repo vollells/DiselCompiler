@@ -128,8 +128,6 @@ void code_generator::prologue(symbol *new_env) {
     out << "\t\t"
         << "sub\trsp, " << ar_size << endl;
 
-    /* Your code here */
-
     out << flush;
 }
 
@@ -151,15 +149,36 @@ void code_generator::epilogue(symbol *old_env) {
    array or a parameter. Note the pass-by-pointer arguments. */
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
     auto *symbol = sym_tab->get_symbol(sym_p);
-    auto *env = sym_tab->get_symbol(sym_tab->current_environment());
     *level = symbol->level;
     // +2 because of [Previous RBP] and [Main RBP] which always are precent.
-    if (sym_tab->get_symbol_tag(sym_p) != SYM_PARAM){
-        *offset = symbol->offset + 8 * (2 + env->level);
+    auto *env = sym_tab->get_symbol(sym_tab->current_environment());
+    *offset = symbol->offset + 8 * (2 + env->level);
+}
+
+void code_generator::find_param(sym_index sym_p, int *level, int *offset) {
+    auto *symbol = sym_tab->get_symbol(sym_p);
+    *level = symbol->level;
+    // +2 because of [Previous RBP] and [Main RBP] which always are precent.
+    auto *env = sym_tab->get_context(*level);
+    parameter_symbol *last_param;
+    if (env->tag == SYM_PROC) {
+        last_param = env->get_procedure_symbol()->last_parameter;
     } else {
-        *offset = symbol->offset + 8 * (2 + *level);
+        last_param = env->get_function_symbol()->last_parameter;
+    }
+    *offset = 8;
+    while (last_param) {
+        *offset += last_param->size;
+        if (sym_tab->pool_compare(last_param->id, symbol->id)) {
+            break;
+        }
+        last_param = last_param->preceding;
+    }
+    if (!last_param) {
+        fatal("Failed to find parameter! Something is wrong!");
     }
 
+    out << "#\tPARAM\t+" << *offset << " - " << *level << endl;
 }
 
 /*
@@ -223,7 +242,7 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
         //     fatal("TODO: Test next lexical scope");
         // }
         int level, offset;
-        find(sym_p, &level, &offset);
+        find_param(sym_p, &level, &offset);
         out << "\t\t"
             << "mov\t"
             << "rcx, "
@@ -288,7 +307,7 @@ void code_generator::store(register_type src, sym_index sym_p) {
         //     fatal("TODO: Test next lexical scope");
         // }
         int level, offset;
-        find(sym_p, &level, &offset);
+        find_param(sym_p, &level, &offset);
         out << "\t\t"
             << "mov\t"
             << "rcx, "
@@ -298,7 +317,7 @@ void code_generator::store(register_type src, sym_index sym_p) {
         out << "\t\t"
             << "mov\t"
             << "[rcx+" << offset << "]"
-            << ", "  << reg[src]
+            << ", " << reg[src]
             << endl;
     } else {
         fatal("Can only fetch SYM_CONST and SYM_VAR");
@@ -912,7 +931,7 @@ void code_generator::expand(quad_list *q_list) {
 
         case q_call: {
             // Call
-            auto* f_sym = sym_tab->get_symbol(q->sym1);
+            auto *f_sym = sym_tab->get_symbol(q->sym1);
             auto label = 0;
             if (f_sym->tag == SYM_PROC) {
                 label = f_sym->get_procedure_symbol()->label_nr;

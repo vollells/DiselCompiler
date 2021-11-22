@@ -59,6 +59,7 @@ private:
       they are passed as pointers.
      */
     void find(sym_index, int *, int *);
+    void find_param(sym_index, int *, int *);
 
     //! Retrieves the value of a variable, parameter or constant to a given register.
     void fetch(sym_index, const register_type);
