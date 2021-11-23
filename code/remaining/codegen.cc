@@ -87,7 +87,6 @@ void code_generator::prologue(symbol *new_env) {
         << "# " <<
         /* Print out the function/procedure name */
         sym_tab->pool_lookup(new_env->id) << endl;
-    assembler_trace = true;
     if (assembler_trace) {
         out << "\t"
             << "# PROLOGUE (" << short_symbols << new_env
