@@ -150,9 +150,7 @@ void code_generator::epilogue(symbol *old_env) {
 void code_generator::find(sym_index sym_p, int *level, int *offset) {
     auto *symbol = sym_tab->get_symbol(sym_p);
     *level = symbol->level;
-    // +2 because of [Previous RBP] and [Main RBP] which always are precent.
-    auto *env = sym_tab->get_symbol(sym_tab->current_environment());
-    *offset = symbol->offset + 8 * (2 + env->level);
+    *offset = symbol->offset + 8 * (1 + symbol->level);
 }
 
 void code_generator::find_param(sym_index sym_p, int *level, int *offset) {
@@ -272,8 +270,21 @@ void code_generator::store_float(sym_index sym_p) {
 
 /* This function fetches the base address of an array. */
 void code_generator::array_address(sym_index sym_p, register_type dest) {
-    /* Your code here */
-    out << "# array_address" << endl;
+    auto *f_sym = sym_tab->get_symbol(sym_p);
+    if (f_sym->tag != SYM_ARRAY) {
+        fatal("Cannot generate array index for non-array");
+    }
+
+    int level = f_sym->level;
+    int offset = f_sym->offset + 8 * (1 + f_sym->level);
+    frame_address(level, dest);
+
+    out << "\t\t"
+        << "sub\t"
+        << reg[dest]
+        << ", "
+        << offset
+        << endl;
 }
 
 /* This method expands a quad_list into assembler code, quad for quad. */
