@@ -25,7 +25,11 @@ e: real;
 //end;
 
 begin;
-    e := 2.0;
-    e := e + 2.0;
+    e := 2.0 + 2.0;
+    if e > 2.0 then
+       WRITE(65);
+     else
+       WRITE(66);
+     end;
     //A(65, 0, 0);
 end.

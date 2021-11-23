@@ -237,7 +237,8 @@ void code_generator::fetch_float(sym_index sym_p) {
         out << "\t\t"
             << "fld"
             << "\t"
-            << value << endl;
+            << "qword " << value
+            << endl;
         return;
     } else if (f_sym->tag == SYM_VAR) {
         int level, offset;
@@ -246,6 +247,7 @@ void code_generator::fetch_float(sym_index sym_p) {
         out << "\t\t"
             << "fld"
             << "\t"
+            << "qword ptr "
             << "[rcx-" << offset << "]"
             << endl;
 
@@ -256,7 +258,8 @@ void code_generator::fetch_float(sym_index sym_p) {
         out << "\t\t"
             << "fld"
             << "\t"
-            << ", [rcx+" << offset << "]"
+            << "qword ptr "
+            << "[rcx+" << offset << "]"
             << endl;
 
     } else {
@@ -305,6 +308,7 @@ void code_generator::store_float(sym_index sym_p) {
         out << "\t\t"
             << "fstp"
             << "\t"
+            << "qword "
             << "rax"
             << endl;
         out << "\t\t"
