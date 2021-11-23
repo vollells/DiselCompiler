@@ -635,6 +635,9 @@ sym_index symbol_table::install_symbol(const pool_index pool_p,
 
     sym_index old_entry = hash_table[hash_i];
     sym_pos++;
+    if (sym_pos >= MAX_SYM) {
+        fatal("Too many symbols! We respect you MAX_SYM");
+    }
     hash_table[hash_i] = sym_pos;
 
     symbol *new_sym_entry = nullptr;
