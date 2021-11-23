@@ -233,6 +233,38 @@ void code_generator::fetch(sym_index sym_p, register_type dest) {
 
 void code_generator::fetch_float(sym_index sym_p) {
     /* Your code here */
+    symbol *f_sym = sym_tab->get_symbol(sym_p);
+    if (f_sym->tag == SYM_CONST) {
+        int value = f_sym->get_constant_symbol()->const_value.rval;
+        out << "\t\t"
+            << "fld"
+            << "\t"
+            << value << endl;
+        return;
+    } else if (f_sym->tag == SYM_VAR) {
+        int level, offset;
+        find(sym_p, &level, &offset);
+        frame_address(level, RCX);
+        out << "\t\t"
+            << "fld"
+            << "\t"
+            << "[rcx-" << offset << "]"
+            << endl;
+
+    } else if (f_sym->tag == SYM_PARAM) {
+        int level, offset;
+        find_param(sym_p, &level, &offset);
+        frame_address(level, RCX);
+        out << "\t\t"
+            << "fld"
+            << "\t"
+            << ", [rcx+" << offset << "]"
+            << endl;
+
+    } else {
+        fatal("Can only fetch SYM_CONST and SYM_VAR");
+        return;
+    }
     out << "# fetch_float" << endl;
 }
 
@@ -267,6 +299,36 @@ void code_generator::store(register_type src, sym_index sym_p) {
 
 void code_generator::store_float(sym_index sym_p) {
     /* Your code here */
+    symbol *f_sym = sym_tab->get_symbol(sym_p);
+    if (f_sym->tag == SYM_VAR) {
+        int level, offset;
+        find(sym_p, &level, &offset);
+        frame_address(level, RCX);
+        out << "\t\t"
+            << "fstp"
+            << "\t"
+            << "rax"
+            << endl;
+        out << "\t\t"
+            << "mov\t"
+            << "[rcx-" << offset << "], "
+            << "rax"
+            << endl;
+
+    } else if (f_sym->tag == SYM_PARAM) {
+        fatal("Not YEt");
+        // int level, offset;
+        // find_param(sym_p, &level, &offset);
+        // frame_address(level, RCX);
+        // out << "\t\t"
+        //     << "mov\t"Can only fetch SYM_CONST and SYM_VAR
+        //     << "[rcx+" << offset << "]"
+        //     << ", " << reg[src]
+        //     << endl;
+    } else {
+        fatal("Can only fetch SYM_CONST and SYM_VAR");
+        return;
+    }
     out << "# store_float" << endl;
 }
 
