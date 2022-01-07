@@ -232,13 +232,15 @@ void code_generator::fetch_float(sym_index sym_p) {
     /* Your code here */
     symbol *f_sym = sym_tab->get_symbol(sym_p);
     if (f_sym->tag == SYM_CONST) {
-        int value = f_sym->get_constant_symbol()->const_value.rval;
-        out << "\t\t"
-            << "fld"
-            << "\t"
-            << "qword " << value
-            << endl;
-        return;
+        if (f_sym->type != real_type) {
+            fatal("code_generator::fetch_float: constant non-real value");
+        }
+        constant_symbol *con = f_sym->get_constant_symbol();
+        out << "\t\t" << "mov" << "\t" << "rcx, " << sym_tab->ieee(con->const_value.rval) << endl;
+        out << "\t\t" << "sub" << "\t" << "rsp, 8" << endl;
+        out << "\t\t" << "mov" << "\t" << "[rsp], rcx" << endl;
+        out << "\t\t" << "fld" << "\t" << "qword ptr [rsp]" << endl;
+        out << "\t\t" << "add" << "\t" << "rsp, 8" << endl;
     } else if (f_sym->tag == SYM_VAR) {
         int level, offset;
         find(sym_p, &level, &offset);
