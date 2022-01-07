@@ -307,15 +307,8 @@ void code_generator::store_float(sym_index sym_p) {
         out << "\t\t"
             << "fstp"
             << "\t"
-            << "qword "
-            << "rax"
+            << "qword ptr [rcx-" << offset << "]"
             << endl;
-        out << "\t\t"
-            << "mov\t"
-            << "[rcx-" << offset << "], "
-            << "rax"
-            << endl;
-
     } else {
         fatal("Can only store in SYM_VAR");
         return;
